@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="favicon.png" type="image/png" />
+    <meta name="viewport" content="width=device-width, initial-scale=2.0">
+    <link rel="stylesheet" href="game.css">
+    <script src="phaser.min.js"></script>
+
+    <title>No Mis Step</title>
+</head>
+
+<body>
+    <h1>NO MISSTEP</h1>
+    <!--<script src="./src/block.js" type="module"></script>-->
+    <script type="module">
+
+
+
+        import Game from './game.js';
+        import CreativeMode from './escenaCreativa.js';
+        import Boot from './Boot.js'
+
+        var config = {
+            type: Phaser.AUTO,
+            width: 1400,
+            height: 800,
+            backgroundColor: '#2C9FD1',
+            pixelArt: true,
+            input: {
+                gamepad: true
+            },
+            scale: {
+                mode: Phaser.Scale.FIT,
+                autoCenter: Phaser.Scale.CENTER_BOTH
+            },
+            scene: [ Boot,CreativeMode],
+            physics: { default: 'arcade', arcade: { gravity: { y: 400 }, debug: false } }
+        };
+        new Phaser.Game(config);
+    </script>
+</body>
+
+</html>
