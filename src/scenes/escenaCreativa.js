@@ -1,6 +1,7 @@
 import Player from  "../gameObjects/player.js";
 import Block  from  "../gameObjects/block.js";
 import Wall from "../gameObjects/wall.js";
+//import GraphicInp from "../gameObjects/GraphicInp.js"
 
 export default class Creative extends Phaser.Scene {
     constructor(){
@@ -9,6 +10,8 @@ export default class Creative extends Phaser.Scene {
         this.bloques = [];
         this.walls;
         this.arrow;
+        this.graphics;
+        
     }
 
     preload() {
@@ -16,7 +19,14 @@ export default class Creative extends Phaser.Scene {
         this.CargaArray();
     }
     create() { 
-
+        this.graphics = this.add.graphics(30, 20);
+        this.drawShape(0x027a71, 0x02fdeb);
+        this.graphics.inputEnabled = true;
+        this.graphics.input.useHandCursor = true;    
+        /*this.graphics.events.onInputDown.add(onDown, this);
+        this.graphics.events.onInputUp.add(onUp, this);
+        this.graphics.events.onInputOver.add(onOver, this);
+        this.graphics.events.onInputOut.add(onOut, this);*/
         this.CargaBloques();
         this.bases = this.add.group();
         this.walls  = new Wall(this,100,100);
@@ -30,6 +40,49 @@ export default class Creative extends Phaser.Scene {
             this.bloques[i] = new Array(this.size);
         }
     }
+
+    drawShape(fill, style) {
+
+
+        this.graphics.clear();
+    
+        //this.graphics.beginFill(fill);
+        this.graphics.lineStyle(4, style, 1);
+    
+        this.graphics.moveTo(0, 0);
+        this.graphics.lineTo(250, 0);
+        this.graphics.lineTo(250, 200);
+        this.graphics.lineTo(125, 100);
+        this.graphics.lineTo(0, 200);
+        this.graphics.lineTo(0, 0);
+    
+        //this.graphics.endFill();
+    
+    }
+     onOver() {
+
+        drawShape(0xab3602, 0xeb6702);
+    
+    }
+    
+    onDown() {
+    
+        drawShape(0x717a02, 0xebfd02);
+    
+    }
+    
+     onUp() {
+    
+        drawShape(0x027a71, 0x02fdeb);
+    
+    }
+    
+     onOut() {
+    
+        drawShape(0x027a71, 0x02fdeb);
+    
+    }
+    
 
     CargaBloques(){
         var auxX = 370;
