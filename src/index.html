@@ -14,7 +14,7 @@
 <body>
     <h1>NO MISSTEP</h1>
     <script type="module">
-                                   
+        import MenuGame     from    './scenes/menu.js'                         
         import Boot         from    './Boot.js'
         import Creative     from    './scenes/escenaCreativa.js'
         import Challenger   from    './scenes/escenaDesafio.js'
@@ -23,7 +23,7 @@
             type: Phaser.AUTO,
             width: 1400,
             height: 800,
-            backgroundColor: '#2C9FD1',
+            backgroundColor: '#000000',
             pixelArt: true,
             input: {
                 gamepad: true
@@ -32,8 +32,8 @@
                 mode: Phaser.Scale.FIT,
                 autoCenter: Phaser.Scale.CENTER_BOTH
             },
-            scene: [ Boot, Creative, Challenger],
-            physics: { default: 'arcade', arcade: { debug: false } }
+            scene: [Boot,MenuGame, Creative, Challenger],
+            physics: { default: 'arcade', arcade: { debug: true } }
         };
         new Phaser.Game(config);
     </script>

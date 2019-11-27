@@ -4,5 +4,4 @@ export default class Tramp extends Phaser.GameObject.Sprite{
         this.scene.add.existing(this);
     }
 
-
 }

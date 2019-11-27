@@ -3,7 +3,6 @@ export default class Player extends Phaser.GameObjects.Sprite{
         super(scene,x,y,type);
         this.scene.add.existing(this); 
         this.scene.physics.add.existing(this);   
-        this.body.setCollideWorldBounds();  
         this.xPos = x;
         this.yPos = y;
         this.speed = 150;
@@ -20,17 +19,17 @@ export default class Player extends Phaser.GameObjects.Sprite{
         }
         this.estado = estados.ARRIBA;
         //Trampas
-        this.trampas = new Array;
+        this.trampas = [];
         //métodos
         this.RespawnPlayer();
         this.CambiaDir(status);
     }
     
     create(){
+
         this.estado = estados.ARRIBA;
         this.xPos = x;
         this.yPos = y;
-
     }
 
     preUpdate(){
@@ -69,10 +68,6 @@ export default class Player extends Phaser.GameObjects.Sprite{
         if(this.body.onFloor()){
             console.log("Collision detectada");
         }
-    }
-
-    update(){
-
     }
 
     RespawnPlayer(){
