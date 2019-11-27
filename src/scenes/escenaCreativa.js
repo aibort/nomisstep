@@ -1,5 +1,6 @@
 import Player from  "../gameObjects/player.js";
-import Wall from "../gameObjects/wall.js";
+//import Wall from "../gameObjects/wall.js";
+import Trap from "../gameObjects/tramp.js";
 import Road from "../gameObjects/road.js";
 import BaseBlock from "../gameObjects/baseBlock.js";
 
@@ -9,7 +10,7 @@ const POS_CAMINO_Y = 210;
 const NUM_CAMINOS_X = 5;
 const NUM_CAMINOS_Y = 5;
 const CAMINO_SIZE_X = 70;
-const CAMINO_SIZE_Y = 70;
+const CAMINO_SIZE_Y = 70; 
 //globales para los muros
 const NUM_MUROS_X = NUM_CAMINOS_X + 2;
 const NUM_MUROS_Y = NUM_CAMINOS_Y + 2;
@@ -42,6 +43,9 @@ export default class Creative extends Phaser.Scene {
 
         this.tableroGroup;
 
+        //Trampas
+        this.trapGroup;
+
         //Jugador
         this.player;
     }
@@ -55,6 +59,7 @@ export default class Creative extends Phaser.Scene {
         this.caminosGroup   = this.add.group();
         this.murosGroup     = this.add.group(); 
         this.tableroGroup   = this.add.group();
+        this.trapGroup      = this.add.group();
         this.input.setHitArea(this.caminosGroup.getChildren());
         
         this.CreaCaminos(); 
@@ -63,6 +68,7 @@ export default class Creative extends Phaser.Scene {
         this.player  = new Player(this,POS_CAMINO_X ,POS_CAMINO_Y,"jugador").setScale(0.5);
         this.physics.add.collider(this.player,this.baseGroup,this.onCollision);
 
+        this.CreaTrampas();
         //Animaciones
             this.creaToqueAnim();
 
@@ -131,6 +137,10 @@ export default class Creative extends Phaser.Scene {
         }
     }
 
+    CreaTrampas(){
+        let beartrap = new Trap (this,POS_CAMINO_X + POS_CAMINO_X/2,POS_CAMINO_Y + POS_CAMINO_Y/2);
+        this.trapGroup.add(beartrap);
+    }
 
     //Crea los eventos para el input sobre una casilla tipo camino
     creaToqueAnim(){
