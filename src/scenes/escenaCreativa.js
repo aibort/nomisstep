@@ -12,6 +12,7 @@ const NUM_CAMINOS_Y = 5;
 const CAMINO_SIZE_X = 70;
 const CAMINO_SIZE_Y = 70; 
 //globales para los muros
+const NUM_MUROS_TOTAL = NUM_CAMINOS_X * NUM_CAMINOS_Y;
 const NUM_MUROS_X = NUM_CAMINOS_X + 2;
 const NUM_MUROS_Y = NUM_CAMINOS_Y + 2;
 const POS_MURO_X = 420;
@@ -27,6 +28,9 @@ const POS_BASE_X = POS_CAMINO_X - BASE_SIZE_X;
 const POS_BASE_Y = POS_CAMINO_Y - BASE_SIZE_Y;
 const POS_DOWN_X = (NUM_CAMINOS_X * BASE_SIZE_X ) + POS_BASE_X + BASE_SIZE_X;
 const POS_DOWN_Y = (NUM_CAMINOS_Y * BASE_SIZE_Y ) + POS_BASE_Y + BASE_SIZE_Y;
+//Globales para renderizar el menu de herramientas
+const SUB_MENU_X = 1000;
+const SUB_MEU_Y = 300;
 
 
 export default class Creative extends Phaser.Scene {
@@ -36,7 +40,9 @@ export default class Creative extends Phaser.Scene {
         this.caminosGroup;
 
         //Muros
+        this.puedoPonerBloque = false;
         this.murosGroup;
+        this.numMuros = NUM_MUROS_TOTAL;
 
         //Base externa que no son interactuables 
         this.baseGroup;
@@ -44,10 +50,12 @@ export default class Creative extends Phaser.Scene {
         this.tableroGroup;
 
         //Trampas
+        this.puedoPonerTrampa = false;
         this.trapGroup;
 
         //Jugador
         this.player;
+
     }
 
     preload() { 
@@ -61,16 +69,62 @@ export default class Creative extends Phaser.Scene {
         this.tableroGroup   = this.add.group();
         this.trapGroup      = this.add.group();
         this.input.setHitArea(this.caminosGroup.getChildren());
+        let pointer = this.input.activePointer;
+
         
         this.CreaCaminos(); 
         //this.CreaMuros();
         this.CreaBase();
         this.player  = new Player(this,POS_CAMINO_X ,POS_CAMINO_Y,"jugador").setScale(0.5);
-        this.physics.add.collider(this.player,this.baseGroup,this.onCollision);
+        this.physics.add.collider(this.player,this.baseGroup, this.onCollision);
+        this.physics.add.collider(this.player, this.trapGroup, this.onCollision);
+        //this.CreaTrampas();
 
-        this.CreaTrampas();
+        //Creación del menu de herramientas
+        this.creaMenuHerramientas();
+
+
         //Animaciones
-            this.creaToqueAnim();
+        this.creaToqueAnim();
+
+        //Para crear el menú de herramientas
+        this.add.image(SUB_MENU_X,SUB_MEU_Y,'baseMenu').setScale(0.25);
+        let boton_agregarMuro = this.add.sprite(SUB_MENU_X - 25,SUB_MEU_Y - 25,'muro').setInteractive().setScale(0.5);
+        boton_agregarMuro.on('pointerdown', function() { 
+            this.puedoPonerBloque = true;
+            this.puedoPonerTrampa =false;
+            console.log("PuedoPonerBloque");
+        });
+
+        let boton_trampa = this.add.image(SUB_MENU_X- 10,SUB_MEU_Y +25,'trap').setInteractive().setScale(0.5);
+        this.input.setHitArea(boton_trampa).on('pointerdown', function() { 
+            this.puedoPonerBloque = false;
+            this.puedoPonerTrampa =true;
+        });
+
+
+        this.caminosGroup.children.iterate(item => {
+            item.on('pointerdown',function(pointer){
+                console.log("GG");
+                if(this.puedoPonerBloque){
+                    console.
+                    this.murosGroup.add(new Wall(this, pointer.x,pointer.y));
+                    //let actMuro = new Wall(this, pointer.x,pointer.y);
+                    //this.tableroGroup.add(actMuro);
+                }
+            });
+        })
+
+
+        
+        /*//Evento para crear un muro en la posición del puntero
+        this.input.setHitArea(this.caminosGroup.getChildren()).on('pointerdown', function(pointer) {
+            console.log("GG");
+            if(this.puedoPonerBloque){
+                let actMuro = new Wall(this, pointer.x,pointer.y);
+                this.tableroGroup.add(actMuro);
+            }
+        });/*
 
 
         //var sprite = this.add.sprite(400, 300, 'eye').setInteractive();
@@ -91,37 +145,32 @@ export default class Creative extends Phaser.Scene {
         //this.cameras.main.setViewport(450, 200, 400, 400);
     }
 
+    creaMenuHerramientas(){
+
+    }
+
 
     onCollision(){
         console.log("COLISION");
     }
-
 
     //Crea las bases (extremos inamovibles) y los agrega al grupo de bases y al grupo del tablero
     CreaBase(){
         for(let i = 0; i < NUM_BASE_X;i++){
             let actBase = new BaseBlock(this,POS_BASE_X + BASE_SIZE_X * i,POS_BASE_Y);
             this.baseGroup.add(actBase);
-            //this.tableroGroup.add(actBase);
-            //this.baseGroup.add(new BaseBlock(this,POS_BASE_X + BASE_SIZE_X * i,POS_BASE_Y));
         }
         for(let i = 0; i < NUM_BASE_Y;i++){
-            //this. baseGroup.add(new BaseBlock(this,POS_BASE_X, POS_BASE_Y + BASE_SIZE_X * i));
             let actBase = new BaseBlock(this,POS_BASE_X, POS_BASE_Y + BASE_SIZE_X * i);
             this.baseGroup.add(actBase);
-            //this.tableroGroup.add(actBase);
         }
         for(let i = 0; i < NUM_BASE_X;i++){
-            //this.baseGroup.add(new BaseBlock(this,POS_DOWN_X - BASE_SIZE_X * i, POS_DOWN_Y));
             let actBase = new BaseBlock(this,POS_DOWN_X - BASE_SIZE_X * i, POS_DOWN_Y);
             this.baseGroup.add(actBase);
-            //this.tableroGroup.add(actBase);
         }
         for(let i = 0; i < NUM_BASE_Y;i++){
-            //this.baseGroup.add(new BaseBlock(this,POS_DOWN_X, POS_DOWN_Y - BASE_SIZE_Y * i));
             let actBase = new BaseBlock(this,POS_DOWN_X, POS_DOWN_Y - BASE_SIZE_Y * i);
             this.baseGroup.add(actBase);
-            //this.tableroGroup.add(actBase);
         }
     }
 
@@ -164,18 +213,14 @@ export default class Creative extends Phaser.Scene {
             frameRate: 10
         });
 
-        this.input.setHitArea(this.caminosGroup.getChildren()).on('gameobjectdown', function(pointer, gameObject) { 
+
+        /*this.input.setHitArea(this.caminosGroup.getChildren()).on('gameobjectdown', function(pointer, gameObject) { 
             gameObject.destroy();
-           // gameObject.
-        
-        
         });
         this.input.setHitArea(this.tableroGroup.getChildren()).on('gameobjectdown', function(pointer, gameObject) { 
             //gameObject.sprite.add("muro");
             //gameObject.disableInteractive();
             //gameObject.setTint(0x000000);
-        
-        
         });
 
         this.input.on('gameobjectmove', function (pointer, gameObject) {
@@ -186,9 +231,8 @@ export default class Creative extends Phaser.Scene {
         });
         this.input.on('gameobjectout', function (pointer, gameObject) {
             gameObject.anims.play('estatico');
-
             gameObject.setTint(0xFFFFFF);
-        });
+        });*/
 
     }
     CreaMuros(){
