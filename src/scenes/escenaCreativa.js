@@ -30,7 +30,7 @@ const POS_BASE_Y = POS_CAMINO_Y - BASE_SIZE_Y;
 const POS_DOWN_X = (NUM_CAMINOS_X * BASE_SIZE_X ) + POS_BASE_X + BASE_SIZE_X;
 const POS_DOWN_Y = (NUM_CAMINOS_Y * BASE_SIZE_Y ) + POS_BASE_Y + BASE_SIZE_Y;
 //time
-const START_TIME = 200;
+const START_TIME = 500;
 //Globales para renderizar el menu de herramientas
 const SUB_MENU_X = 1000;
 const SUB_MEU_Y = 300;
@@ -58,14 +58,33 @@ export default class Creative extends Phaser.Scene {
 
         //Jugador
         this.player;
+        this.actTime = START_TIME;
 
     }
 
     preload() { 
         console.log("Escena creativa cargada");
     }
+    update(){ 
+        //info.setText('\nTime: ' + Math.floor(timer.getElapsed()));
+       //this.actTime.
+       //el tiempo fucnciona
+       if (this.actTime >= 0)
+        {
+            this.sigNivel = true;
+            this.actTime--;
+        }
+        else
+        {
+            //comentar aqui para no parar el juego 
+            this.emitter.emit('CAMBIO');  //pero el emitter de eventos no funciona
+        }
+       
+       console.log(this.actTime);
+
+    }
     create() { 
-        this.emitter = EventManager.getInstance();
+         //this.emitter = EventManager.getInstance(); //AQUI no funciona
         //inicialización de grupos
         this.baseGroup      = this.add.group();
         this.caminosGroup   = this.add.group();
@@ -279,6 +298,10 @@ export default class Creative extends Phaser.Scene {
         /*for(var i = 0 ; i <NUM_MUROS_X; i++){
             this.muros[i][j] = new Wall(this, POS_MURO_X + MURO_SIZE_X * i, MURO_SIZE_Y + POS_MURO_Y * j);
         }*/
+    }
+    setListeners()
+    {
+        this.emitter.on('CAMBIO',this.scene.start('Challenger'));
     }
 
 }
