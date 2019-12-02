@@ -4,6 +4,7 @@ import Trap from "../gameObjects/tramp.js";
 import Road from "../gameObjects/road.js";
 import BaseBlock from "../gameObjects/baseBlock.js";
 
+
 //Globales para los caminos
 const POS_CAMINO_X = 420;
 const POS_CAMINO_Y = 210;
@@ -27,6 +28,8 @@ const POS_BASE_X = POS_CAMINO_X - BASE_SIZE_X;
 const POS_BASE_Y = POS_CAMINO_Y - BASE_SIZE_Y;
 const POS_DOWN_X = (NUM_CAMINOS_X * BASE_SIZE_X ) + POS_BASE_X + BASE_SIZE_X;
 const POS_DOWN_Y = (NUM_CAMINOS_Y * BASE_SIZE_Y ) + POS_BASE_Y + BASE_SIZE_Y;
+//time
+const START_TIME = 200;
 
 
 export default class Creative extends Phaser.Scene {
@@ -34,7 +37,7 @@ export default class Creative extends Phaser.Scene {
         super({key:'Creative'}); 
         //Caminos
         this.caminosGroup;
-
+        
         //Muros
         this.murosGroup;
 
@@ -48,12 +51,32 @@ export default class Creative extends Phaser.Scene {
 
         //Jugador
         this.player;
+       
+        //time
+        this.actTime = START_TIME;
+        this.sigNivel = false;
+        
+
+
+    }
+    update(){
+        //info.setText('\nTime: ' + Math.floor(timer.getElapsed()));
+       //this.actTime.
+       if (this.actTime >= 0)
+        {
+            this.sigNivel = true;
+            this.actTime--;
+        }
+       
+       console.log(this.actTime);
+
     }
 
     preload() { 
         console.log("Escena creativa cargada");
     }
     create() { 
+       // this.emitter = EventManager.getInstance();
         //inicialización de grupos
         this.baseGroup      = this.add.group();
         this.caminosGroup   = this.add.group();
@@ -67,11 +90,13 @@ export default class Creative extends Phaser.Scene {
         this.CreaBase();
         this.player  = new Player(this,POS_CAMINO_X ,POS_CAMINO_Y,"jugador").setScale(0.5);
         this.physics.add.collider(this.player,this.baseGroup,this.onCollision);
-
+        this.physics.add.collider(this.player,this.trapGroup,this.onCollision);
+        
+     
         this.CreaTrampas();
         //Animaciones
             this.creaToqueAnim();
-
+            this.input.on('pointerdown',this.startDrag, this);
 
         //var sprite = this.add.sprite(400, 300, 'eye').setInteractive();
         //this.caminosGroup.setHitArea();
@@ -91,6 +116,9 @@ export default class Creative extends Phaser.Scene {
         //this.cameras.main.setViewport(450, 200, 400, 400);
     }
 
+    creaEvento(){
+      //  this.emitter.emit("Activado ")
+    }
 
     onCollision(){
         console.log("COLISION");
@@ -138,8 +166,9 @@ export default class Creative extends Phaser.Scene {
     }
 
     CreaTrampas(){
-        let beartrap = new Trap (this,POS_CAMINO_X + POS_CAMINO_X/2,POS_CAMINO_Y + POS_CAMINO_Y/2);
+        let beartrap = new Trap (this,POS_CAMINO_X + CAMINO_SIZE_X,POS_CAMINO_Y + POS_CAMINO_Y/2 + CAMINO_SIZE_Y/2);
         this.trapGroup.add(beartrap);
+
     }
 
     //Crea los eventos para el input sobre una casilla tipo camino
@@ -165,23 +194,26 @@ export default class Creative extends Phaser.Scene {
         });
 
         this.input.setHitArea(this.caminosGroup.getChildren()).on('gameobjectdown', function(pointer, gameObject) { 
-            gameObject.destroy();
+       
+        
+        
+            //gameObject.destroy();
            // gameObject.
         
         
         });
+
         this.input.setHitArea(this.tableroGroup.getChildren()).on('gameobjectdown', function(pointer, gameObject) { 
             //gameObject.sprite.add("muro");
             //gameObject.disableInteractive();
             //gameObject.setTint(0x000000);
-        
+           
         
         });
 
         this.input.on('gameobjectmove', function (pointer, gameObject) {
             gameObject.anims.play('tocando');
             gameObject.setTint(0x696969);
-
     
         });
         this.input.on('gameobjectout', function (pointer, gameObject) {
@@ -190,6 +222,22 @@ export default class Creative extends Phaser.Scene {
             gameObject.setTint(0xFFFFFF);
         });
 
+    }
+    startDrag(pointer, targets){
+        this.input.off('pointerdown',this.startDrag, this);
+        this.dragObj = targets[0];
+        this.input.on('pointermove',this.doDrag, this);
+        this.input.on('pointerup', this.stopDrag, this);
+    }
+    doDrag(pointer)
+    {
+        this.dragObj.x = pointer.x;
+        this.dragObj.y = pointer.y;
+    }
+    stopDrag(pointer, targets){
+        this.input.on('pointerdown',this.startDrag, this);
+        this.input.off('pointermove',this.doDrag, this);
+        this.input.off('pointerup', this.stopDrag, this);
     }
     CreaMuros(){
         console.log("GG");
