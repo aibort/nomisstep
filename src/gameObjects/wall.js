@@ -7,4 +7,8 @@ export default class Wall extends Block{
         
     }
 
+    delete(){
+        delete this;
+    }
+
 }

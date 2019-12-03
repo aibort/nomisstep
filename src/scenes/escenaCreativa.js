@@ -81,9 +81,6 @@ export default class Creative extends Phaser.Scene {
         this.murosGroup     = this.add.group(); 
         this.tableroGroup   = this.add.group();
         this.trapGroup      = this.add.group();
-        //this.input.setHitArea(this.caminosGroup.getChildren());
-        //let pointer = this.input.activePointer;
-
 
         //Creación de los caminos en el estado inicial
         this.CreaCaminos(); 
@@ -119,15 +116,6 @@ export default class Creative extends Phaser.Scene {
             });
         })*/
 
-
-        
-
-
-
-
-        //var sprite = this.add.sprite(400, 300, 'eye').setInteractive();
-        //this.caminosGroup.setHitArea();
-        //setHitArea(hitArea, hitAreaCallback)
         
 
         /*this.tweens.add({
@@ -145,7 +133,7 @@ export default class Creative extends Phaser.Scene {
 
     update(time,delta){ 
         this.actTime -= delta;
-        this.menuHerramientas.getAt(5).setText(('Time: ' + this.puedoPonerBloque));
+        this.menuHerramientas.getAt(5).setText(('Time: ' + this.actTime));
         this.menuHerramientas.getAt(1).setText(('Muros: ' + this.numMuros));
         this.menuHerramientas.getAt(2).setText(('Trampas: ' + this.numTrampas));
 
@@ -169,8 +157,6 @@ export default class Creative extends Phaser.Scene {
        console.log(this.actTime);*/
 
     }
-
-
 
     //Métodos 
     creaEvento(){
@@ -198,11 +184,12 @@ export default class Creative extends Phaser.Scene {
         //Creación del botón que se encarga de activar la implementación de los muros
         let boton_agregarMuro = this.add.sprite(SUB_MENU_X + 85  ,SUB_MEU_Y - 80,'muro').setInteractive();
         let boton_trampa = this.add.sprite(SUB_MENU_X + 85,SUB_MEU_Y +25,'trap').setInteractive();
-        //.on('pointerdown', () => this.updateClickCountText(++clickCount) );
+        //let boton_casillaIni = this.add.sprite(SUB_MENU_X + 85  ,SUB_MEU_Y - 80,'bloqueBase').setInteractive();
         console.log(this.puedoPonerBloque);
 
         boton_agregarMuro.on('pointerdown' , () => this.creaEventoMuro(boton_agregarMuro, boton_trampa));
         boton_trampa.on('pointerdown' , () => this.creaEventoTrampas(boton_trampa,boton_agregarMuro));
+        //boton_casillaIni.on('pointerdown', () => this.creaEventoTrampas());
         
         this.menuHerramientas.add(boton_agregarMuro);
         this.menuHerramientas.add(boton_trampa);
@@ -246,7 +233,7 @@ export default class Creative extends Phaser.Scene {
                 let actCamino = new Road(this, POS_CAMINO_X + CAMINO_SIZE_X * i, POS_CAMINO_Y + CAMINO_SIZE_Y * j);
                 this.tableroGroup.add(actCamino);
                 this.caminosGroup.add(actCamino); 
-                actCamino.on('pointerdown',() => this.creaMuro(actCamino)); 
+                actCamino.on('pointerdown',() => this.creaInteractuable(actCamino)); 
                 this.numCaminos--;
             }
         }
@@ -271,12 +258,13 @@ export default class Creative extends Phaser.Scene {
     }
 
     //Falta eliminar el camino
-    creaMuro(currCamino){   
+    creaInteractuable(currCamino){   
         if(this.puedoPonerBloque && this.numMuros > 0){
             let muroX = currCamino.getX();
             let muroY = currCamino.getY();
             let currMuro = new Wall (this,muroX,muroY);
             this.murosGroup.add(currMuro);
+            this.tableroGroup.add(currMuro);
             this.tweens.add({
                 targets: currMuro,
                 scaleX: 0.75,
@@ -287,12 +275,14 @@ export default class Creative extends Phaser.Scene {
                 repeatDelay: 500
             });
             this.numMuros--;
-        }
+            currCamino.destroy();
+            }
         else if(this.puedoPonerTrampa && this.numTrampas > 0){
             let muroX = currCamino.getX();
             let muroY = currCamino.getY();
             let currTrampa = new Tramp(this,muroX,muroY);
             this.trapGroup.add(currTrampa);
+            this.tableroGroup.add(currTrampa);
             this.numTrampas--;
             this.tweens.add({
                 targets: currTrampa,
@@ -302,10 +292,9 @@ export default class Creative extends Phaser.Scene {
                 yoyo: true,
                 repeatDelay: 500
             });
+            currCamino.destroy();
         }
     }
-
-
 
 
     //Crea la animación y se los asigna (solo a los caminos)
