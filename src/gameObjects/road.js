@@ -4,15 +4,18 @@ export default class Road extends Block{
         super(scene,x,y,'camino');
         this.setInteractive();
         this.setInteractive.draggable = true;
-
-        this.preCreate();
     }
 
-    preCreate(){
-        console.log("GGWP");
+    getX(){
+        return this.x;
+    }
 
-
+    getY(){
+        return this.y;
     }
 }
+
+
+
 
 

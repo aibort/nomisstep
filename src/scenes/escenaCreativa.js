@@ -1,8 +1,9 @@
 import Player from  "../gameObjects/player.js";
-//import Wall from "../gameObjects/wall.js";
+import Wall from "../gameObjects/wall.js";
 import Trap from "../gameObjects/tramp.js";
 import Road from "../gameObjects/road.js";
 import BaseBlock from "../gameObjects/baseBlock.js";
+import Tramp from "../gameObjects/tramp.js";
 
 
 //Globales para los caminos
@@ -30,10 +31,10 @@ const POS_BASE_Y = POS_CAMINO_Y - BASE_SIZE_Y;
 const POS_DOWN_X = (NUM_CAMINOS_X * BASE_SIZE_X ) + POS_BASE_X + BASE_SIZE_X;
 const POS_DOWN_Y = (NUM_CAMINOS_Y * BASE_SIZE_Y ) + POS_BASE_Y + BASE_SIZE_Y;
 //time
-const START_TIME = 500;
+const START_TIME = 5000;
 //Globales para renderizar el menu de herramientas
 const SUB_MENU_X = 1000;
-const SUB_MEU_Y = 300;
+const SUB_MEU_Y = 200;
 
 
 export default class Creative extends Phaser.Scene {
@@ -41,6 +42,7 @@ export default class Creative extends Phaser.Scene {
         super({key:'Creative'}); 
         //Caminos
         this.caminosGroup;
+        this.numCaminos = NUM_CAMINOS_X * NUM_CAMINOS_Y;
         
         //Muros
         this.puedoPonerBloque = false;
@@ -55,34 +57,22 @@ export default class Creative extends Phaser.Scene {
         //Trampas
         this.puedoPonerTrampa = false;
         this.trapGroup;
+        this.numTrampas = 10;
 
         //Jugador
         this.player;
         this.actTime = START_TIME;
+
+        //Contenedor del menú de herramientas
+        this.menuHerramientas;
+
 
     }
 
     preload() { 
         console.log("Escena creativa cargada");
     }
-    update(){ 
-        //info.setText('\nTime: ' + Math.floor(timer.getElapsed()));
-       //this.actTime.
-       //el tiempo fucnciona
-       if (this.actTime >= 0)
-        {
-            this.sigNivel = true;
-            this.actTime--;
-        }
-        else
-        {
-            //comentar aqui para no parar el juego 
-            this.emitter.emit('CAMBIO');  //pero el emitter de eventos no funciona
-        }
-       
-       console.log(this.actTime);
 
-    }
     create() { 
          //this.emitter = EventManager.getInstance(); //AQUI no funciona
         //inicialización de grupos
@@ -91,49 +81,30 @@ export default class Creative extends Phaser.Scene {
         this.murosGroup     = this.add.group(); 
         this.tableroGroup   = this.add.group();
         this.trapGroup      = this.add.group();
-        this.input.setHitArea(this.caminosGroup.getChildren());
-        let pointer = this.input.activePointer;
+        //this.input.setHitArea(this.caminosGroup.getChildren());
+        //let pointer = this.input.activePointer;
 
-        
+
+        //Creación de los caminos en el estado inicial
         this.CreaCaminos(); 
-        //this.CreaMuros();
-        this.CreaBase();
-        this.player  = new Player(this,POS_CAMINO_X ,POS_CAMINO_Y,"jugador").setScale(0.5);
 
-        this.physics.add.collider(this.player,this.baseGroup,this.onCollision);
-        this.physics.add.collider(this.player,this.trapGroup,this.onCollision);
+        //Creación de los bloques externos
+        this.CreaBase();
+
+
+        //Amaro: Esto irá en la escena desafío
+        //this.player  = new Player(this,POS_CAMINO_X ,POS_CAMINO_Y,"jugador").setScale(0.5);
+        //Crea la colisión entre el jugador y los distintos elementos 
+        //this.physics.add.collider(this.player,this.baseGroup,this.onCollision);
+        //this.physics.add.collider(this.player,this.trapGroup,this.onCollision);
         
-     
-        this.CreaTrampas();
         //Animaciones
         this.creaToqueAnim();
         this.input.on('pointerdown',this.startDrag, this);
         
-        //this.CreaTrampas();
-
         //Creación del menu de herramientas
         this.creaMenuHerramientas();
 
-
-        //Animaciones
-        this.creaToqueAnim();
-
-        //Para crear el menú de herramientas
-        this.add.image(SUB_MENU_X,SUB_MEU_Y,'baseMenu').setScale(0.25);
-        let boton_agregarMuro = this.add.sprite(SUB_MENU_X - 25,SUB_MEU_Y - 25,'muro').setInteractive().setScale(0.5);
-        boton_agregarMuro.on('pointerdown', function() { 
-            this.puedoPonerBloque = true;
-            this.puedoPonerTrampa =false;
-            console.log("PuedoPonerBloque");
-        });
-
-        //hay bug de animaciones al seleccionar trampa
-    
-       let boton_trampa = this.add.image(SUB_MENU_X- 10,SUB_MEU_Y +25,'trap').setInteractive().setScale(0.5);
-        this.input.setHitArea(boton_trampa).on('pointerdown', function() { 
-            this.puedoPonerBloque = false;
-            this.puedoPonerTrampa =true;
-        }); 
 
 
         /*this.caminosGroup.children.iterate(item => {
@@ -150,14 +121,7 @@ export default class Creative extends Phaser.Scene {
 
 
         
-        /*//Evento para crear un muro en la posición del puntero
-        this.input.setHitArea(this.caminosGroup.getChildren()).on('pointerdown', function(pointer) {
-            console.log("GG");
-            if(this.puedoPonerBloque){
-                let actMuro = new Wall(this, pointer.x,pointer.y);
-                this.tableroGroup.add(actMuro);
-            }
-        });/*
+
 
 
 
@@ -179,11 +143,75 @@ export default class Creative extends Phaser.Scene {
         //this.cameras.main.setViewport(450, 200, 400, 400);
     }
 
+    update(time,delta){ 
+        this.actTime -= delta;
+        this.menuHerramientas.getAt(5).setText(('Time: ' + this.puedoPonerBloque));
+        this.menuHerramientas.getAt(1).setText(('Muros: ' + this.numMuros));
+        this.menuHerramientas.getAt(2).setText(('Trampas: ' + this.numTrampas));
+
+        
+        
+        //Amaro : Ésto debería ser en función de un delta, no de los FPS.
+        //info.setText('\nTime: ' + Math.floor(timer.getElapsed()));
+       //this.actTime.
+       //el tiempo fucnciona
+       /*if (this.actTime >= 0)
+        {
+            this.sigNivel = true;
+            this.actTime--;
+        }
+        else
+        {
+            //comentar aqui para no parar el juego 
+            this.emitter.emit('CAMBIO');  //pero el emitter de eventos no funciona
+        }
+       
+       console.log(this.actTime);*/
+
+    }
+
+
+
+    //Métodos 
     creaEvento(){
       //  this.emitter.emit("Activado ")
     }
-    creaMenuHerramientas(){
 
+    //Crea los elementos del menú y los ingresa a un container
+    creaMenuHerramientas(){
+        this.menuHerramientas = this.add.container(100,100);
+        this.fondoMenuHerramintas = this.add.image(SUB_MENU_X,SUB_MEU_Y,'baseMenu').setScale(0.30);
+        this.menuHerramientas.add(this.fondoMenuHerramintas);
+
+        //Inicialización del texto de los bloques
+        this.textCaminos = this.add.text(SUB_MENU_X - 115, SUB_MEU_Y -100 , 'score: 0', { fontSize: '32px', fill: '#000' });
+        this.textCaminos.setScale(0.8);
+        this.textCaminos.setText('Bloques ' + this.numCaminos);
+        this.menuHerramientas.add(this.textCaminos);
+
+        //Inicialización del texto de las trampas
+        this.textTrampas = this.add.text(SUB_MENU_X - 115, SUB_MEU_Y , 'score: 0', { fontSize: '32px', fill: '#000' });
+        this.textTrampas.setScale(0.8);
+        this.textTrampas.setText('Trampas ' + this.numTrampas);
+        this.menuHerramientas.add(this.textTrampas);
+
+        //Creación del botón que se encarga de activar la implementación de los muros
+        let boton_agregarMuro = this.add.sprite(SUB_MENU_X + 85  ,SUB_MEU_Y - 80,'muro').setInteractive();
+        let boton_trampa = this.add.sprite(SUB_MENU_X + 85,SUB_MEU_Y +25,'trap').setInteractive();
+        //.on('pointerdown', () => this.updateClickCountText(++clickCount) );
+        console.log(this.puedoPonerBloque);
+
+        boton_agregarMuro.on('pointerdown' , () => this.creaEventoMuro(boton_agregarMuro, boton_trampa));
+        boton_trampa.on('pointerdown' , () => this.creaEventoTrampas(boton_trampa,boton_agregarMuro));
+        
+        this.menuHerramientas.add(boton_agregarMuro);
+        this.menuHerramientas.add(boton_trampa);
+
+        //Inicialización del texto para el timer
+        this.textTiempo = this.add.text(SUB_MENU_X - 115, SUB_MEU_Y + 100 , 'score: 0', { fontSize: '32px', fill: '#000' });
+        this.textTiempo.setScale(0.8);
+        this.textTiempo.setText('Tiempo ' + this.actTime);
+        this.menuHerramientas.add(this.textTiempo);
     }
 
 
@@ -213,23 +241,74 @@ export default class Creative extends Phaser.Scene {
 
     //Crea los caminos y los agrega a al grupo de caminos y tablero
     CreaCaminos() {
-
         for(var i = 0 ; i < NUM_CAMINOS_X; i ++){
             for(var j = 0 ; j < NUM_CAMINOS_Y; j ++){
                 let actCamino = new Road(this, POS_CAMINO_X + CAMINO_SIZE_X * i, POS_CAMINO_Y + CAMINO_SIZE_Y * j);
                 this.tableroGroup.add(actCamino);
-                this.caminosGroup.add(actCamino);   
+                this.caminosGroup.add(actCamino); 
+                actCamino.on('pointerdown',() => this.creaMuro(actCamino)); 
+                this.numCaminos--;
             }
         }
     }
 
-    CreaTrampas(){
-        let beartrap = new Trap (this,POS_CAMINO_X + CAMINO_SIZE_X,POS_CAMINO_Y + POS_CAMINO_Y/2 + CAMINO_SIZE_Y/2);
-        this.trapGroup.add(beartrap);
-
+    //Crea el evento para crear muros
+    creaEventoMuro(boton_agregarMuro,boton_trampa){
+        boton_agregarMuro.setTint(0x060968);
+        boton_trampa.setTint(0xFFFFFF);
+        this.puedoPonerBloque = true;
+        this.puedoPonerTrampa = false;
+        console.log("PuedoPonerBloque");
     }
 
-    //Crea los eventos para el input sobre una casilla tipo camino
+    //Crea el evento para crear trampas
+    creaEventoTrampas(boton_trampa,boton_agregarMuro){
+        boton_trampa.setTint(0x68064D);
+        boton_agregarMuro.setTint(0xFFFFFF);
+        this.puedoPonerBloque = false;//430505
+        this.puedoPonerTrampa =true;
+        console.log("PuedoPonerTrampa");
+    }
+
+    //Falta eliminar el camino
+    creaMuro(currCamino){   
+        if(this.puedoPonerBloque && this.numMuros > 0){
+            let muroX = currCamino.getX();
+            let muroY = currCamino.getY();
+            let currMuro = new Wall (this,muroX,muroY);
+            this.murosGroup.add(currMuro);
+            this.tweens.add({
+                targets: currMuro,
+                scaleX: 0.75,
+                scaleY: 0.75,
+                duration: 300,
+                repeat: 1,
+                yoyo: true,
+                repeatDelay: 500
+            });
+            this.numMuros--;
+        }
+        else if(this.puedoPonerTrampa && this.numTrampas > 0){
+            let muroX = currCamino.getX();
+            let muroY = currCamino.getY();
+            let currTrampa = new Tramp(this,muroX,muroY);
+            this.trapGroup.add(currTrampa);
+            this.numTrampas--;
+            this.tweens.add({
+                targets: currTrampa,
+                angle: 90,
+                duration: 300,
+                repeat: -1,
+                yoyo: true,
+                repeatDelay: 500
+            });
+        }
+    }
+
+
+
+
+    //Crea la animación y se los asigna (solo a los caminos)
     creaToqueAnim(){
         this.anims.create({
             key:    'tocando',
@@ -251,25 +330,19 @@ export default class Creative extends Phaser.Scene {
             frameRate: 10
         });
 
-       
-
-       /* this.input.setHitArea(this.tableroGroup.getChildren()).on('gameobjectdown', function(pointer, gameObject) { 
-            //gameObject.sprite.add("muro");
-            //gameObject.disableInteractive();
-            //gameObject.setTint(0x000000);
-        }); */
-
-        this.input.on('gameobjectmove', function (pointer, gameObject) {
-            gameObject.anims.play('tocando');
-            gameObject.setTint(0x696969);
-    
+        //Agrega el comportamiento solo a los elementos del camino
+        this.caminosGroup.children.each(function(camino) {
+            camino.on('pointermove', function() { 
+            camino.anims.play('tocando');
+            camino.setTint(0x696969);
+            });
+            camino.on('pointerout', function() { 
+            camino.anims.play('estatico');
+            camino.setTint(0xFFFFFF);
+            });
         });
-        this.input.on('gameobjectout', function (pointer, gameObject) {
-            gameObject.anims.play('estatico');
-            gameObject.setTint(0xFFFFFF);
-        });
-
     }
+
     startDrag(pointer, targets){
         this.input.off('pointerdown',this.startDrag, this);
         this.dragObj = targets[0];
@@ -286,19 +359,7 @@ export default class Creative extends Phaser.Scene {
         this.input.off('pointermove',this.doDrag, this);
         this.input.off('pointerup', this.stopDrag, this);
     }
-    CreaMuros(){
-        console.log("GG");
 
-        /*for(var i = 0 ; i < NUM_MUROS_X; i ++){
-            for(var j = 0 ; j < NUM_MUROS_Y; j ++){
-                this.muros[i][j] = new Wall(this, POS_MURO_X + MURO_SIZE_X * i, MURO_SIZE_Y + POS_MURO_Y * j);
-            }
-        }
-
-        /*for(var i = 0 ; i <NUM_MUROS_X; i++){
-            this.muros[i][j] = new Wall(this, POS_MURO_X + MURO_SIZE_X * i, MURO_SIZE_Y + POS_MURO_Y * j);
-        }*/
-    }
     setListeners()
     {
         this.emitter.on('CAMBIO',this.scene.start('Challenger'));
