@@ -4,11 +4,16 @@ export default class Wall extends Block{
     constructor(scene, x, y){
         super(scene,x,y,'muro');
         this.scene.physics.add.existing(this, true);
+        this.setInteractive();
         
     }
 
-    delete(){
-        delete this;
+    getX(){
+        return this.x;
+    }
+
+    getY(){
+        return this.y;
     }
 
 }

@@ -1,7 +1,7 @@
 import Block from "./block.js";
-export default class Spawn extends Block{
-    constructor(scene, x, y){
-        super(scene,x,y,'inicio');
+export default class Goal extends Block{
+    constructor(scene, x, y,indX,indY){
+        super(scene, x, y, 'meta',indX,indY);
         this.setInteractive();
     }
 
