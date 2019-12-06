@@ -10,10 +10,14 @@ export default class Boot extends Phaser.Scene{
         this.load.image('muro','./assets/Imagenes/muro.png');
         this.load.image('camino','./assets/Imagenes/bloque.png');
         this.load.image('jugador', './assets/Imagenes/personaje.png');
-        this.load.image('background', './assets/Imagenes/sky.png');
         this.load.image('bloqueBase', './assets/Imagenes/baseBlock.png');
         this.load.image('trap', './assets/Imagenes/trap.png')
+
+        //Fondo de escenas / menus
         this.load.image('baseMenu', './assets/Imagenes/fondoMenu.png');
+        this.load.image('imagenInfo', './assets/Imagenes/tablaInformacion.png');
+        this.load.image('menuBG', './assets/Imagenes/fondoStart.png');
+
         //Cargar imagenes de botones
         this.load.image('agregaBloque','./assets/Botones/agregaBloque.png');
         this.load.image('quitaBloque','./assets/Botones/quitaBloque.png');
@@ -29,6 +33,8 @@ export default class Boot extends Phaser.Scene{
 
         //Cargar sonidos
         this.load.audio('trampaAudio','./assets/Audios/trampaSonido.mp3' );
+        this.load.audio('creativaTema','./assets/Audios/audioCreativa.mp3' );
+
 
 
     }

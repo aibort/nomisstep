@@ -6,10 +6,10 @@ export default class Menu extends Phaser.Scene{
 
     create(){
         console.log("Escena menú");
-        let logo = this.add.sprite(700,350,'logo');//El logo no es png...
-        let boton_creativo = this.add.sprite(400,400,'botonCreativa').setInteractive().setScale(0.5);
+        let fondo = this.add.sprite(700,400,'menuBG').setScale(1.2);
+        //let logo = this.add.sprite(700,350,'logo');//El logo no es png...
+        let boton_creativo = this.add.sprite(700,600,'botonCreativa').setInteractive().setScale(0.5);
         boton_creativo.on('pointerdown',() => this.cargaEscenaCreativa());
-
       }
 
     cargaEscenaCreativa(){

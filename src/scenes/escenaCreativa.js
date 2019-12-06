@@ -73,6 +73,8 @@ export default class Creative extends Phaser.Scene {
         //Variables para determinar si el jugador ha colocado el inicio y final
         this.spawnPuesto = false;
         this.metaPuesta = false;
+
+        this.temaFondo ;
     }
 
     preload() { 
@@ -94,11 +96,7 @@ export default class Creative extends Phaser.Scene {
         //Creación de los bloques externos
         this.CreaBase();
 
-        //Amaro: Esto irá en la escena desafío
-        //this.player  = new Player(this,POS_CAMINO_X ,POS_CAMINO_Y,"jugador").setScale(0.5);
-        //Crea la colisión entre el jugador y los distintos elementos 
-        //this.physics.add.collider(this.player,this.baseGroup,this.onCollision);
-        //this.physics.add.collider(this.player,this.trapGroup,this.onCollision);
+
         
         //Animaciones
         this.creaToqueAnim();
@@ -106,6 +104,8 @@ export default class Creative extends Phaser.Scene {
         
         //Creación del menu de herramientas
         this.creaMenuHerramientas();
+        //Agrega audio de fondo a la escena creativa
+        this.temaFondo = this.sound.add('creativaTema').play();
 
 
 
@@ -132,8 +132,7 @@ export default class Creative extends Phaser.Scene {
             yoyo: true
         });*/   
 
-        //this.cameras.main.startFollow(this.player);
-        //this.cameras.main.setViewport(450, 200, 400, 400);
+
     }
 
     update(time,delta){ 
@@ -165,28 +164,24 @@ export default class Creative extends Phaser.Scene {
 
     //Métodos 
 
-    //Se puede quitar un evento a un objeto?
-    creaEntrada(){
-
-    }
 
     //Crea los elementos del menú y los ingresa a un container
     creaMenuHerramientas(){
         this.menuHerramientas = this.add.container(100,100);
         this.fondoMenuHerramintas = this.add.image(SUB_MENU_X,SUB_MEU_Y,'baseMenu').setScale(0.30);
-        this.menuHerramientas.add(this.fondoMenuHerramintas);
+        this.menuHerramientas.add(this.fondoMenuHerramintas);//0
 
         //Inicialización del texto de los bloques
         this.textCaminos = this.add.text(SUB_MENU_X - 115, SUB_MEU_Y -100 , 'score: 0', { fontSize: '32px', fill: '#000' });
         this.textCaminos.setScale(0.8);
         this.textCaminos.setText('Bloques ' + this.numCaminos);
-        this.menuHerramientas.add(this.textCaminos);
+        this.menuHerramientas.add(this.textCaminos);//1
 
         //Inicialización del texto de las trampas
         this.textTrampas = this.add.text(SUB_MENU_X - 115, SUB_MEU_Y , 'score: 0', { fontSize: '32px', fill: '#000' });
         this.textTrampas.setScale(0.8);
         this.textTrampas.setText('Trampas ' + this.numTrampas);
-        this.menuHerramientas.add(this.textTrampas);
+        this.menuHerramientas.add(this.textTrampas);//2
 
         //Creación del botón que se encarga de activar la implementación de los muros
         let boton_agregarMuro = this.add.sprite(SUB_MENU_X + 85  ,SUB_MEU_Y - 80,'agregaBloque').setInteractive().setScale(0.5);
@@ -200,18 +195,24 @@ export default class Creative extends Phaser.Scene {
         boton_quitaMuro.on('pointerdown',() => this.quitaEventoMuro(boton_quitaMuro,boton_quitaTrampa,boton_agregarMuro,boton_agregaTrampa));
         boton_quitaTrampa.on('pointerdown',() => this.quitaEventoTrampa(boton_quitaMuro,boton_quitaTrampa,boton_agregarMuro,boton_agregaTrampa));
 
-        this.menuHerramientas.add(boton_agregarMuro);
-        this.menuHerramientas.add(boton_agregaTrampa);
-        this.menuHerramientas.add(boton_quitaTrampa);
-        this.menuHerramientas.add(boton_quitaMuro);
+        this.menuHerramientas.add(boton_agregarMuro);//3
+        this.menuHerramientas.add(boton_agregaTrampa);//4
+        this.menuHerramientas.add(boton_quitaTrampa);//5
+        this.menuHerramientas.add(boton_quitaMuro);//6
 
         //Inicialización del texto para el timer
         this.textTiempo = this.add.text(SUB_MENU_X - 115, SUB_MEU_Y + 100 , 'score: 0', { fontSize: '32px', fill: '#000' });
         this.textTiempo.setScale(0.8);
         this.textTiempo.setText('Tiempo ' + this.actTime);
-        this.menuHerramientas.add(this.textTiempo);
-    }
+        this.menuHerramientas.add(this.textTiempo);//7
 
+        //Inicializa el tablero de ayuda
+        this.informador = this.add.sprite(SUB_MENU_X,SUB_MEU_Y + 300,'imagenInfo').setScale(0.6);
+        this.menuHerramientas.add(this.informador);//8
+        this.textInfo = this.add.text(SUB_MENU_X - 140 ,SUB_MEU_Y + 250,'Place the starting block', { fontSize: '20px', fill: '#000' });
+        this.menuHerramientas.add(this.textInfo);//9
+
+    }   
     
     creaEventoMuro(boton_agregarMuro,boton_agregaTrampa,boton_quitaMuro,boton_quitaTrampa){
         if(this.metaPuesta){
@@ -398,6 +399,7 @@ export default class Creative extends Phaser.Scene {
                 repeatDelay: 200
             });
             currCamino.destroy();
+            this.menuHerramientas.getAt(9).setText('Place the goal block');
         }  
         else if(!this.metaPuesta){
             this.metaPuesta = true;
@@ -414,6 +416,8 @@ export default class Creative extends Phaser.Scene {
                 repeatDelay: 200
             });
             currCamino.destroy();
+            this.menuHerramientas.getAt(9).setText('Create the stage.');
+
         }
     }
 

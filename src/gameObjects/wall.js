@@ -8,12 +8,12 @@ export default class Wall extends Block{
         
     }
 
-    getX(){
+    /*getX(){
         return this.x;
     }
 
     getY(){
         return this.y;
-    }
+    }*/
 
 }

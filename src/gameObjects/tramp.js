@@ -7,7 +7,6 @@ export default class Tramp extends Block{
         this.setInteractive();
         this.body.immovable = true;
         this.setScale(0.4);
-        this.audio;
         
     }
     getX(){
@@ -18,9 +17,5 @@ export default class Tramp extends Block{
         return this.y;
     }
 
-    playSonido(){
-        this.audio = this.sound.add('trampaAudio');
-        this.audio.play();
-    }
 
 }

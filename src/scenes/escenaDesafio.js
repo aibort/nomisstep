@@ -5,5 +5,13 @@ export default class Challenger extends Phaser.Scene{
     create(){
 
     }
+
+            //Amaro: Esto irá en la escena desafío
+        //this.player  = new Player(this,POS_CAMINO_X ,POS_CAMINO_Y,"jugador").setScale(0.5);
+        //Crea la colisión entre el jugador y los distintos elementos 
+        //this.physics.add.collider(this.player,this.baseGroup,this.onCollision);
+        //this.physics.add.collider(this.player,this.trapGroup,this.onCollision);
+        //this.cameras.main.startFollow(this.player);
+        //this.cameras.main.setViewport(450, 200, 400, 400);
 }
 
