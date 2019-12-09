@@ -1,8 +1,8 @@
 import Block from "./block.js";
 
 export default class Tramp extends Block{
-    constructor(x,y,type){
-        super(x,y,type,'trap');
+    constructor(scene, x, y,indX,indY){
+        super(scene, x, y,'trap' ,indX,indY);
         this.scene.physics.add.existing(this, false);
         this.setInteractive();
         this.body.immovable = true;

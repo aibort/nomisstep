@@ -11,8 +11,8 @@ import Goal from "../gameObjects/goal.js";
 //Globales para los caminos
 const POS_CAMINO_X = 200;
 const POS_CAMINO_Y = 100;
-const NUM_CAMINOS_X = 10;
-const NUM_CAMINOS_Y = 9;
+const NUM_CAMINOS_X = 5;
+const NUM_CAMINOS_Y = 5;
 const CAMINO_SIZE_X = 70;
 const CAMINO_SIZE_Y = 70; 
 //globales para los muros
@@ -71,6 +71,8 @@ export default class Creative extends Phaser.Scene {
         this.menuHerramientas;
 
         //Variables para determinar si el jugador ha colocado el inicio y final
+        this.spawn;
+        this.meta;
         this.spawnPuesto = false;
         this.metaPuesta = false;
 
@@ -140,26 +142,6 @@ export default class Creative extends Phaser.Scene {
         //this.menuHerramientas.getAt(8).setText(('Time: ' + this.spawnPuesto));
         this.menuHerramientas.getAt(1).setText(('Muros: ' + this.numMuros));
         this.menuHerramientas.getAt(2).setText(('Trampas: ' + this.numTrampas));
-
-        
-        
-        //Amaro : Ésto debería ser en función de un delta, no de los FPS.
-        //info.setText('\nTime: ' + Math.floor(timer.getElapsed()));
-       //this.actTime.
-       //el tiempo fucnciona
-       /*if (this.actTime >= 0)
-        {
-            this.sigNivel = true;
-            this.actTime--;
-        }
-        else
-        {
-            //comentar aqui para no parar el juego 
-            this.emitter.emit('CAMBIO');  //pero el emitter de eventos no funciona
-        }
-       
-       console.log(this.actTime);*/
-
     }
 
     //Métodos 
@@ -209,7 +191,7 @@ export default class Creative extends Phaser.Scene {
         //Inicializa el tablero de ayuda
         this.informador = this.add.sprite(SUB_MENU_X,SUB_MEU_Y + 300,'imagenInfo').setScale(0.6);
         this.menuHerramientas.add(this.informador);//8
-        this.textInfo = this.add.text(SUB_MENU_X - 140 ,SUB_MEU_Y + 250,'Place the starting block', { fontSize: '20px', fill: '#000' });
+        this.textInfo = this.add.text(SUB_MENU_X - 140 ,SUB_MEU_Y + 250,'Place the starting block'+ "\n" + "on a board limit.", { fontSize: '20px', fill: '#000' });
         this.menuHerramientas.add(this.textInfo);//9
 
     }   
@@ -273,9 +255,6 @@ export default class Creative extends Phaser.Scene {
         }
     }     
 
-    onCollision(){
-        console.log("COLISION");
-    }
 
     //Crea las bases (extremos inamovibles) y los agrega al grupo de bases y al grupo del tablero
     CreaBase(){
@@ -299,20 +278,26 @@ export default class Creative extends Phaser.Scene {
 
     //Crea los caminos y los agrega a al grupo de caminos y tablero al inicio del juego
     CreaCaminos() {
-        for(var i = 0 ; i < NUM_CAMINOS_X; i ++){
-            for(var j = 0 ; j < NUM_CAMINOS_Y; j ++){
-                let actCamino = new Road(this, POS_CAMINO_X + CAMINO_SIZE_X * i, POS_CAMINO_Y + CAMINO_SIZE_Y * j,i,j);
+        for(var y = 0 ; y < NUM_CAMINOS_Y; y++){
+            for(var x = 0 ; x < NUM_CAMINOS_X; x++){
+                let actCamino = new Road(this, POS_CAMINO_X + (CAMINO_SIZE_X * x), POS_CAMINO_Y + (CAMINO_SIZE_Y * y) ,x ,y);
+                this.aplicaAnim(actCamino);
                 this.tableroGroup.add(actCamino);
                 this.caminosGroup.add(actCamino); 
+                let tx = this.add.text(actCamino.getX() - 30,actCamino.getY() - 30);
+                tx.setText(actCamino.getX() + "/" + actCamino.getY() + "\n" + actCamino.getIndX() + "/" +actCamino.getIndY() + "\n" + this.caminosGroup.getLength());
                 actCamino.on('pointerdown',() => this.creaInteractuable(actCamino)); 
                 this.numCaminos--;
             }
+
         }
     }
 
     //Crea un muro
     creaMuro(currCamino){
-        let currMuro = new Wall (this,currCamino.getX(),currCamino.getY());
+        let currMuro = new Wall (this,currCamino.getX(),currCamino.getY(),currCamino.getIndX(),currCamino.getIndY());
+        let tx = this.add.text(currMuro.getX() - 30,currMuro.getY() - 30);
+        tx.setText(currMuro.getX() + "/" + currMuro.getY() + "\n" + currMuro.getIndX() + "/" +currMuro.getIndY() + "\n" + this.murosGroup.getLength());
         currMuro.on('pointerdown',() => this.quitarMuroPonerCamino(currMuro)); 
         this.murosGroup.add(currMuro);
         this.tableroGroup.add(currMuro);
@@ -327,8 +312,6 @@ export default class Creative extends Phaser.Scene {
         });
         this.numMuros--;
         currCamino.destroy();
-        console.log(this.tableroGroup);
-
     }
 
     quitarMuroPonerCamino(currMuro){
@@ -350,15 +333,19 @@ export default class Creative extends Phaser.Scene {
 
     //Crea camino en una posición de otro objeto
     creaCamino(currElem){
-        let currCamino = new Road(this,currElem.getX(),currElem.getY());
+        let currCamino = new Road(this,currElem.getX(),currElem.getY(),currElem.getIndX(),currElem.getIndY());
         this.caminosGroup.add(currCamino);
         this.tableroGroup.add(currCamino);
         currCamino.on('pointerdown',() => this.creaInteractuable(currCamino)); 
+        this.aplicaAnim(currCamino);
         currElem.destroy();
     }
 
+    //Crea una trampa en la posición de un camino determinado
     creaTrampa(currCamino){
-        let currTrampa = new Tramp(this,currCamino.getX(),currCamino.getY());
+        let currTrampa = new Tramp(this,currCamino.getX(),currCamino.getY(),currCamino.getIndX(),currCamino.getIndY());
+        let tx = this.add.text(currTrampa.getX() - 30,currTrampa.getY() - 30);
+        tx.setText(currTrampa.getX() + "/" + currTrampa.getY() + "\n" + currTrampa.getIndX() + "/" +currTrampa.getIndY() + "\n" + this.trapGroup.getLength());
         currTrampa.on('pointerdown',() => this.quitaTrampaPoneCamino(currTrampa)); 
         let audio = this.sound.add('trampaAudio');
         audio.play();
@@ -376,22 +363,23 @@ export default class Creative extends Phaser.Scene {
         currCamino.destroy();
     }
 
-
+    //Después del tocar una casilla se encarga de determinar qué elemento poner
     creaInteractuable(currCamino){ 
+       
         if(this.puedoPonerMuro && this.numMuros > 0){
             this.creaMuro(currCamino);
             }
         else if(this.puedoPonerTrampa && this.numTrampas > 0){
             this.creaTrampa(currCamino);
         }
-        else if(!this.spawnPuesto){
+        else if(!this.spawnPuesto && this.dentroLimites(currCamino)){
             this.spawnPuesto = true;
             let caminoX = currCamino.getX();
             let caminoY = currCamino.getY();
-            let spawn = new Spawn (this,caminoX,caminoY);
-            this.tableroGroup.add(spawn);
+            this.spawn = new Spawn (this,caminoX,caminoY,currCamino.getIndX(),currCamino.getIndY());
+            this.tableroGroup.add(this.spawn);
             this.tweens.add({
-                targets: spawn,
+                targets: this.spawn,
                 angle: 15,
                 duration: 100,
                 repeat: 10,
@@ -399,16 +387,16 @@ export default class Creative extends Phaser.Scene {
                 repeatDelay: 200
             });
             currCamino.destroy();
-            this.menuHerramientas.getAt(9).setText('Place the goal block');
+            this.menuHerramientas.getAt(9).setText('Place the goal block' + "\n" + "on a board limit.");
         }  
-        else if(!this.metaPuesta){
+        else if(!this.metaPuesta && this.dentroLimites(currCamino)){
             this.metaPuesta = true;
             let caminoX = currCamino.getX();
             let caminoY = currCamino.getY();
-            let meta = new Goal (this,caminoX,caminoY);
-            this.tableroGroup.add(meta);
+            this.meta = new Goal (this,caminoX,caminoY,currCamino.getIndX(),currCamino.getIndY());
+            this.tableroGroup.add(this.meta);
             this.tweens.add({
-                targets: meta,
+                targets: this.meta,
                 angle: 15,
                 duration: 100,
                 repeat: 10,
@@ -416,12 +404,25 @@ export default class Creative extends Phaser.Scene {
                 repeatDelay: 200
             });
             currCamino.destroy();
-            this.menuHerramientas.getAt(9).setText('Create the stage.');
+            this.menuHerramientas.getAt(9).setText('Create the stage '+ "\n" + "before time runs out.");
+
+        this.caminosGroup.children.each(function(camino) {
+            camino.off('pointermove');
+            camino.off('pointerout');
+            camino.on('pointermove',  function() { 
+            camino.setTint(0x696969);
+            camino.anims.play('tocando');
+            });
+            camino.on('pointerout', function() { 
+            camino.anims.play('estatico');
+            camino.setTint(0xFFFFFF);
+            });
+        });
 
         }
     }
 
-    //Crea la animación y se los asigna (solo a los caminos)
+    //Crea la animación de toque
     creaToqueAnim(){
         this.anims.create({
             key:    'tocando',
@@ -444,7 +445,8 @@ export default class Creative extends Phaser.Scene {
         });
 
         //Agrega el comportamiento solo a los elementos del camino
-        this.caminosGroup.children.each(function(camino) {
+        /*this.caminosGroup.children.each(function(camino) {
+
             camino.on('pointermove',  function() { 
             camino.setTint(0x696969);
             camino.anims.play('tocando');
@@ -453,7 +455,78 @@ export default class Creative extends Phaser.Scene {
             camino.anims.play('estatico');
             camino.setTint(0xFFFFFF);
             });
-        });
+        });*/
     }
+         
+    //Agrega el comportamiento a un elemento en función del juego
+    aplicaAnim(elemt){
+
+        if(this.dentroLimites(elemt) && !this.metaPuesta){
+            elemt.on('pointermove',  function() { 
+                elemt.setTint(0xFCFF00);
+                elemt.anims.play('tocando');
+            });
+            elemt.on('pointerout', function() { 
+                elemt.anims.play('estatico');
+                elemt.setTint(0xFFFFFF);
+            });
+
+        }
+        else{
+            elemt.on('pointermove',  function() { 
+                elemt.setTint(0x696969);
+                elemt.anims.play('tocando');
+            });
+            elemt.on('pointerout', function() {     
+                elemt.anims.play('estatico');
+                elemt.setTint(0xFFFFFF);
+            });
+
+
+        }
+        
+        
+    }
+
+    //Determina su una casilla está en los extremos del tablero
+    dentroLimites(elem){
+
+        if((elem.getIndX() == NUM_CAMINOS_X - 1 || elem.getIndX() == 0 || elem.getIndY() == 0 || elem.getIndY() == NUM_CAMINOS_Y - 1 )){
+            return true;
+        }
+        return false;
+
+    }
+
+    //Determina si la poner un bloque en esa posición bloquea un camino
+    esValido(){
+        let contador = 0;
+        const dir = {
+            ARRIBA : 0,
+            DERECHA: 1,
+            ABAJO: 2,
+            IZQUIERDA : 3
+        }
+
+        actDir = dir.ARRIBA;
+        let sigPos = {
+            ARRIBA: -1,
+            DERECHA : -1,
+            ABAJO : -1,
+            IZQUIERDA: -1
+        }
+
+        while(contador < 4){
+            let arriba = false;
+            while(!arriba && this.spawn.getIndY() < NUM_CAMINOS_Y){
+                sigPos.ARRIBA = this.currCamino.get();
+
+            }
+        }
+
+    }
+
+
+    
 
 }

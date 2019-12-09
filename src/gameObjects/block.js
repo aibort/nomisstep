@@ -5,6 +5,7 @@ export default class Block extends Phaser.GameObjects.Sprite{
         this.niebla = false;
         this.indX = indX;
         this.indY = indY;
+        this.ocupado = false;
     }
 
 
@@ -22,6 +23,10 @@ export default class Block extends Phaser.GameObjects.Sprite{
 
     getIndY(){
         return this.indY;   
+    }
+
+    estaUsado(){
+        return this.ocupado;
     }
 
 }
