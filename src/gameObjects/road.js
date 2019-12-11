@@ -1,8 +1,8 @@
 import Block from "./block.js";
 export default class Road extends Block{
-    constructor(scene, x, y,indX,indY){
-        super(scene,x,y,'camino',indX,indY);
-        this.setInteractive();        
+    constructor(scene, x, y,indX,indY,posIngroup){
+        super(scene,x,y,'camino',indX,indY,posIngroup);
+        this.setInteractive();   
     }
 
 }

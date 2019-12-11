@@ -5,7 +5,7 @@ import Road from        "../gameObjects/road.js";
 import BaseBlock from   "../gameObjects/baseBlock.js";
 import Tramp from       "../gameObjects/tramp.js";
 import Spawn from       "../gameObjects/casillaInicio.js";
-import Goal from "../gameObjects/goal.js";
+import Goal from        "../gameObjects/goal.js";
 
 
 //Globales para los caminos
@@ -38,7 +38,6 @@ const START_TIME = 5000;
 const SUB_MENU_X = 1000;
 const SUB_MEU_Y = 200;
 
-
 export default class Creative extends Phaser.Scene {
     constructor(){
         super({key:'Creative'}); 
@@ -54,8 +53,7 @@ export default class Creative extends Phaser.Scene {
 
         //Base externa que no son interactuables 
         this.baseGroup;
-
-        this.tableroGroup;
+        this.tableroGroup = [NUM_CAMINOS_X];
 
         //Trampas
         this.puedoPonerTrampa = false;
@@ -89,14 +87,21 @@ export default class Creative extends Phaser.Scene {
         this.baseGroup      = this.add.group();
         this.caminosGroup   = this.add.group();
         this.murosGroup     = this.add.group(); 
-        this.tableroGroup   = this.add.group();
         this.trapGroup      = this.add.group();
+
+        for(let y = 0 ; y < NUM_CAMINOS_X ; y++){
+            this.tableroGroup[y] = new Array;
+            this.tableroGroup[y] = [NUM_CAMINOS_Y];
+        }
 
         //Creación de los caminos en el estado inicial
         this.CreaCaminos(); 
 
         //Creación de los bloques externos
         this.CreaBase();
+
+
+
 
 
         
@@ -256,23 +261,30 @@ export default class Creative extends Phaser.Scene {
     }     
 
 
-    //Crea las bases (extremos inamovibles) y los agrega al grupo de bases y al grupo del tablero
+    //Crea las bases (extremos inamovibles) y los agrega al grupo de bases y al tablero
     CreaBase(){
-        for(let i = 0; i < NUM_BASE_X;i++){
-            let actBase = new BaseBlock(this,POS_BASE_X + BASE_SIZE_X * i,POS_BASE_Y);
-            this.baseGroup.add(actBase);
-        }
-        for(let i = 0; i < NUM_BASE_Y;i++){
-            let actBase = new BaseBlock(this,POS_BASE_X, POS_BASE_Y + BASE_SIZE_X * i);
-            this.baseGroup.add(actBase);
-        }
-        for(let i = 0; i < NUM_BASE_X;i++){
-            let actBase = new BaseBlock(this,POS_DOWN_X - BASE_SIZE_X * i, POS_DOWN_Y);
-            this.baseGroup.add(actBase);
-        }
-        for(let i = 0; i < NUM_BASE_Y;i++){
-            let actBase = new BaseBlock(this,POS_DOWN_X, POS_DOWN_Y - BASE_SIZE_Y * i);
-            this.baseGroup.add(actBase);
+        let contador = 0;
+        for(let i = 0 ; i < NUM_BASE_Y ; i++){
+            
+            if(i == 0 || contador == NUM_BASE_Y - 1){
+                for(let j = 0 ; j < NUM_BASE_X ; j++){
+                    let actBase = new BaseBlock(this,POS_BASE_X + BASE_SIZE_X * j,POS_BASE_Y + BASE_SIZE_Y * contador);
+                    this.baseGroup.add(actBase);
+                    //this.tableroGroup[i][j] = actBase;
+                }
+                contador++;
+            }
+            else {
+                let baseDer = new BaseBlock(this, POS_BASE_X , POS_BASE_Y + BASE_SIZE_Y * contador);
+                this.baseGroup.add(baseDer);
+                //this.tableroGroup[i][contador] = baseDer;
+                let baseIzq = new BaseBlock(this,POS_BASE_X + BASE_SIZE_X * (NUM_BASE_X - 1) ,POS_BASE_Y + BASE_SIZE_Y * contador);
+                this.baseGroup.add(baseIzq);
+                //this.tableroGroup[NUM_BASE_X - 1][contador] = baseIzq;
+                contador++;
+
+            }
+
         }
     }
 
@@ -280,10 +292,11 @@ export default class Creative extends Phaser.Scene {
     CreaCaminos() {
         for(var y = 0 ; y < NUM_CAMINOS_Y; y++){
             for(var x = 0 ; x < NUM_CAMINOS_X; x++){
-                let actCamino = new Road(this, POS_CAMINO_X + (CAMINO_SIZE_X * x), POS_CAMINO_Y + (CAMINO_SIZE_Y * y) ,x ,y);
+                let actCamino = new Road(this, POS_CAMINO_X + (CAMINO_SIZE_X * x), POS_CAMINO_Y + (CAMINO_SIZE_Y * y) ,x ,y,5);
                 this.aplicaAnim(actCamino);
-                this.tableroGroup.add(actCamino);
                 this.caminosGroup.add(actCamino); 
+                this.tableroGroup[x][y] = actCamino;
+                console.log(this.tableroGroup);
                 let tx = this.add.text(actCamino.getX() - 30,actCamino.getY() - 30);
                 tx.setText(actCamino.getX() + "/" + actCamino.getY() + "\n" + actCamino.getIndX() + "/" +actCamino.getIndY() + "\n" + this.caminosGroup.getLength());
                 actCamino.on('pointerdown',() => this.creaInteractuable(actCamino)); 
@@ -295,12 +308,13 @@ export default class Creative extends Phaser.Scene {
 
     //Crea un muro
     creaMuro(currCamino){
-        let currMuro = new Wall (this,currCamino.getX(),currCamino.getY(),currCamino.getIndX(),currCamino.getIndY());
+        let currMuro = new Wall (this,currCamino.getX(),currCamino.getY(),currCamino.getIndX(),currCamino.getIndY(),5);
+        currMuro.visible = false;
         let tx = this.add.text(currMuro.getX() - 30,currMuro.getY() - 30);
-        tx.setText(currMuro.getX() + "/" + currMuro.getY() + "\n" + currMuro.getIndX() + "/" +currMuro.getIndY() + "\n" + this.murosGroup.getLength());
+        tx.setText(currMuro.getX() + "/" + currMuro.getY() + "\n" + currMuro.getIndX() + "/" +currMuro.getIndY() + "\n" + "?");
         currMuro.on('pointerdown',() => this.quitarMuroPonerCamino(currMuro)); 
         this.murosGroup.add(currMuro);
-        this.tableroGroup.add(currMuro);
+        this.tableroGroup[currMuro.getIndX()][currMuro.getIndY()] = currMuro;
         this.tweens.add({
             targets: currMuro,
             scaleX: 0.75,
@@ -312,6 +326,7 @@ export default class Creative extends Phaser.Scene {
         });
         this.numMuros--;
         currCamino.destroy();
+        return currMuro;
     }
 
     quitarMuroPonerCamino(currMuro){
@@ -333,9 +348,9 @@ export default class Creative extends Phaser.Scene {
 
     //Crea camino en una posición de otro objeto
     creaCamino(currElem){
-        let currCamino = new Road(this,currElem.getX(),currElem.getY(),currElem.getIndX(),currElem.getIndY());
+        let currCamino = new Road(this,currElem.getX(),currElem.getY(),currElem.getIndX(),currElem.getIndY(),5);
         this.caminosGroup.add(currCamino);
-        this.tableroGroup.add(currCamino);
+
         currCamino.on('pointerdown',() => this.creaInteractuable(currCamino)); 
         this.aplicaAnim(currCamino);
         currElem.destroy();
@@ -343,14 +358,13 @@ export default class Creative extends Phaser.Scene {
 
     //Crea una trampa en la posición de un camino determinado
     creaTrampa(currCamino){
-        let currTrampa = new Tramp(this,currCamino.getX(),currCamino.getY(),currCamino.getIndX(),currCamino.getIndY());
+        let currTrampa = new Tramp(this,currCamino.getX(),currCamino.getY(),currCamino.getIndX(),currCamino.getIndY(),5);
         let tx = this.add.text(currTrampa.getX() - 30,currTrampa.getY() - 30);
-        tx.setText(currTrampa.getX() + "/" + currTrampa.getY() + "\n" + currTrampa.getIndX() + "/" +currTrampa.getIndY() + "\n" + this.trapGroup.getLength());
+        tx.setText(currTrampa.getX() + "/" + currTrampa.getY() + "\n" + currTrampa.getIndX() + "/" +currTrampa.getIndY() + "\n" + "?");
         currTrampa.on('pointerdown',() => this.quitaTrampaPoneCamino(currTrampa)); 
         let audio = this.sound.add('trampaAudio');
         audio.play();
         this.trapGroup.add(currTrampa);
-        this.tableroGroup.add(currTrampa);
         this.numTrampas--;
         this.tweens.add({
             targets: currTrampa,
@@ -367,17 +381,27 @@ export default class Creative extends Phaser.Scene {
     creaInteractuable(currCamino){ 
        
         if(this.puedoPonerMuro && this.numMuros > 0){
-            this.creaMuro(currCamino);
+            let currMuro = this.creaMuro(currCamino);
+            if(this.esValido(this.spawn,-1)){
+                currMuro.visible = true;
             }
+            else{
+                currMuro.destroy();
+            }
+
+            for(let x = 0 ; x < NUM_CAMINOS_X ; x ++){
+                for(let y = 0 ; y < NUM_CAMINOS_Y ; y ++){
+                    this.tableroGroup[x][y].reiniciaEstados();
+                }
+            }
+        }
         else if(this.puedoPonerTrampa && this.numTrampas > 0){
             this.creaTrampa(currCamino);
         }
         else if(!this.spawnPuesto && this.dentroLimites(currCamino)){
             this.spawnPuesto = true;
-            let caminoX = currCamino.getX();
-            let caminoY = currCamino.getY();
-            this.spawn = new Spawn (this,caminoX,caminoY,currCamino.getIndX(),currCamino.getIndY());
-            this.tableroGroup.add(this.spawn);
+            this.spawn = new Spawn (this,currCamino.getX(),currCamino.getY(),currCamino.getIndX(),currCamino.getIndY());
+            this.tableroGroup[currCamino.getIndX()][currCamino.getIndY()] = this.spawn;
             this.tweens.add({
                 targets: this.spawn,
                 angle: 15,
@@ -394,7 +418,8 @@ export default class Creative extends Phaser.Scene {
             let caminoX = currCamino.getX();
             let caminoY = currCamino.getY();
             this.meta = new Goal (this,caminoX,caminoY,currCamino.getIndX(),currCamino.getIndY());
-            this.tableroGroup.add(this.meta);
+            console.log(this.meta);
+            this.tableroGroup [currCamino.getIndX()][currCamino.getIndY()] = this.meta;
             this.tweens.add({
                 targets: this.meta,
                 angle: 15,
@@ -497,36 +522,45 @@ export default class Creative extends Phaser.Scene {
         return false;
 
     }
-
-    //Determina si la poner un bloque en esa posición bloquea un camino
-    esValido(){
-        let contador = 0;
-        const dir = {
-            ARRIBA : 0,
-            DERECHA: 1,
-            ABAJO: 2,
-            IZQUIERDA : 3
-        }
-
-        actDir = dir.ARRIBA;
-        let sigPos = {
-            ARRIBA: -1,
-            DERECHA : -1,
-            ABAJO : -1,
-            IZQUIERDA: -1
-        }
-
-        while(contador < 4){
-            let arriba = false;
-            while(!arriba && this.spawn.getIndY() < NUM_CAMINOS_Y){
-                sigPos.ARRIBA = this.currCamino.get();
-
+    
+    //Determina de forma recursiva si al poner un bloque en una posición este deja un camino 
+    //(comprueba en sentido de las agujas de un reloj)
+    esValido(actPos,dir){
+        actPos.setTint(0x000000);
+        let tx = this.add.text(actPos.getX(),actPos.getY());
+        tx.setText("*");
+        let valido = false;
+        console.log(actPos.getIndX() +"/"+actPos.getIndY());
+        if(!actPos.hasOwnProperty("final")){
+            if(dir!=0 && actPos.getIndY() > 0 && !this.tableroGroup[actPos.getIndX()][actPos.getIndY() - 1].hasOwnProperty("ocupado") && !actPos.revisa("arriba")){
+                actPos.reasigna("arriba");
+                valido = this.esValido(this.tableroGroup[actPos.getIndX()][actPos.getIndY() - 1],2);
             }
+            
+            if(!valido && dir!=1 && actPos.getIndX() < NUM_CAMINOS_X - 1 && !this.tableroGroup[actPos.getIndX() + 1][actPos.getIndY()].hasOwnProperty("ocupado") && !actPos.revisa("derecha")){
+                actPos.reasigna("derecha");
+                valido =this.esValido(this.tableroGroup[actPos.getIndX() + 1][actPos.getIndY()],3);
+            }
+    
+            if(!valido && dir!=2 && actPos.getIndY() < NUM_CAMINOS_Y-1 && !this.tableroGroup[actPos.getIndX()][actPos.getIndY()+1].hasOwnProperty("ocupado") && !actPos.revisa("abajo")){
+                actPos.reasigna("abajo");
+                valido =this.esValido(this.tableroGroup[actPos.getIndX()][actPos.getIndY()+1],0);
+            }
+    
+            if(!valido && dir!=3 && actPos.getIndX() > 0 && !this.tableroGroup[actPos.getIndX() - 1][actPos.getIndY()].hasOwnProperty("ocupado") && !actPos.revisa("izquierda")){
+                actPos.reasigna("izquierda");
+                valido =this.esValido(this.tableroGroup[actPos.getIndX() - 1][actPos.getIndY()], 1);
+            }
+
+        }else{
+            console.log("EXISTE UN CAMINO");
+            valido = true;
         }
+
+        if(!valido) console.log("NO EXISTE UN CAMINO");
+
+        return valido;
 
     }
-
-
-    
 
 }

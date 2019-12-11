@@ -1,8 +1,9 @@
 import Block from "./block.js";
 export default class Goal extends Block{
-    constructor(scene, x, y,indX,indY){
-        super(scene, x, y, 'meta',indX,indY);
+    constructor(scene, x, y,indX,indY,posIngroup){
+        super(scene, x, y, 'meta',indX,indY,posIngroup);
         this.setInteractive();
+        this.final = true;
     }
 
     getX(){
@@ -12,4 +13,7 @@ export default class Goal extends Block{
     getY(){
         return this.y;
     }
+
+
+    
 }
