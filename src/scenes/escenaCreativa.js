@@ -332,7 +332,7 @@ export default class Creative extends Phaser.Scene {
     quitarMuroPonerCamino(currMuro){
         if(this.puedoQuitarMuro){
             this.numMuros++;
-            this.creaCamino(currMuro);
+            this.tableroGroup[currMuro.getIndX()][currMuro.getIndY()]= this.creaCamino(currMuro);
             currMuro.destroy();
         }
 
@@ -350,10 +350,9 @@ export default class Creative extends Phaser.Scene {
     creaCamino(currElem){
         let currCamino = new Road(this,currElem.getX(),currElem.getY(),currElem.getIndX(),currElem.getIndY(),5);
         this.caminosGroup.add(currCamino);
-
         currCamino.on('pointerdown',() => this.creaInteractuable(currCamino)); 
         this.aplicaAnim(currCamino);
-        currElem.destroy();
+        return currCamino;
     }
 
     //Crea una trampa en la posición de un camino determinado
@@ -386,7 +385,18 @@ export default class Creative extends Phaser.Scene {
                 currMuro.visible = true;
             }
             else{
-                currMuro.destroy();
+                this.tableroGroup[currMuro.getIndX()][currMuro.getIndY()] = this.creaCamino(currCamino);
+                this.tableroGroup[currMuro.getIndX()][currMuro.getIndY()].setTint(0xFF0000);
+                this.tweens.add({
+                    targets: this.tableroGroup[currMuro.getIndX()][currMuro.getIndY()],
+                    scaleX: 0.75,
+                    scaleY: 0.75,
+                    duration: 100,
+                    repeat: 1,
+                    yoyo: true,
+                    repeatDelay: 500
+                });
+                currMuro.destroy(); 
             }
 
             for(let x = 0 ; x < NUM_CAMINOS_X ; x ++){
