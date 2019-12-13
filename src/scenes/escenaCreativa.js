@@ -11,8 +11,8 @@ import Goal from        "../gameObjects/goal.js";
 //Globales para los caminos
 const POS_CAMINO_X = 200;
 const POS_CAMINO_Y = 100;
-const NUM_CAMINOS_X = 5;
-const NUM_CAMINOS_Y = 5;
+const NUM_CAMINOS_X = 10;
+const NUM_CAMINOS_Y = 9;
 const CAMINO_SIZE_X = 70;
 const CAMINO_SIZE_Y = 70; 
 //globales para los muros
@@ -147,6 +147,9 @@ export default class Creative extends Phaser.Scene {
         //this.menuHerramientas.getAt(8).setText(('Time: ' + this.spawnPuesto));
         this.menuHerramientas.getAt(1).setText(('Muros: ' + this.numMuros));
         this.menuHerramientas.getAt(2).setText(('Trampas: ' + this.numTrampas));
+        //si pasa el tiempo(){ carga leve();
+
+        
     }
 
     //Métodos 
