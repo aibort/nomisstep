@@ -62,7 +62,6 @@ export default class Creative extends Phaser.Scene {
 
         //Jugador
         this.player;
-        this.actTime = START_TIME;
 
         //Contenedor del menú de herramientas
         this.menuHerramientas;
@@ -73,7 +72,12 @@ export default class Creative extends Phaser.Scene {
         this.spawnPuesto = false;
         this.metaPuesta = false;
 
+        //Variables para agregar sonidos
         this.temaFondo ;
+
+        //Variable que controla el tiempo
+        this.timedEvent;
+        this.tiempoParaCambio = 6000;
     }
 
     preload() { 
@@ -99,19 +103,17 @@ export default class Creative extends Phaser.Scene {
         //Creación de los bloques externos
         this.CreaBase();
 
-
-
-
-
-        
         //Animaciones
         this.creaToqueAnim();
         //this.input.on('pointerdown',this.startDrag, this);
         
         //Creación del menu de herramientas
         this.creaMenuHerramientas();
-        //Agrega audio de fondo a la escena creativa
+        //Agregar audios
         this.temaFondo = this.sound.add('creativaTema').play();
+
+        //Agrega evento de cambio de escena
+        this.timedEvent = this.time.delayedCall(this.tiempoParaCambio, this.tiempoFuera, [], this);
 
 
 
@@ -143,7 +145,7 @@ export default class Creative extends Phaser.Scene {
 
     update(time,delta){ 
         this.actTime -= delta;
-        //this.menuHerramientas.getAt(8).setText(('Time: ' + this.spawnPuesto));
+        this.menuHerramientas.getAt(7).setText('Time: ' + (this.timedEvent.getProgress() * this.tiempoParaCambio / 1000).toString().substr(0,3));
         this.menuHerramientas.getAt(1).setText(('Muros: ' + this.numMuros));
         this.menuHerramientas.getAt(2).setText(('Trampas: ' + this.numTrampas));
         //si pasa el tiempo(){ carga leve();
@@ -152,7 +154,15 @@ export default class Creative extends Phaser.Scene {
     }
 
     //Métodos 
-
+    //Se encarga de preparar todo para el cambio de escena al acabar el tiempo de creación
+    tiempoFuera(){
+        //Crear escena
+        //var desafio = this.scene.add("Challenger", this,true);
+        this.scene.start("Challenger",this.tableroGroup,this.player);
+        //desafio.start("Challenger",this.trapGroup,this.player);
+        //desafio.start(this.tableroGroup,this.player);
+        console.log("TIEMPO FUERA!");
+    }
 
     //Crea los elementos del menú y los ingresa a un container
     creaMenuHerramientas(){
@@ -298,7 +308,6 @@ export default class Creative extends Phaser.Scene {
                 this.aplicaAnim(actCamino);
                 this.caminosGroup.add(actCamino); 
                 this.tableroGroup[x][y] = actCamino;
-                console.log(this.tableroGroup);
                 let tx = this.add.text(actCamino.getX() - 30,actCamino.getY() - 30);
                 tx.setText(actCamino.getX() + "/" + actCamino.getY() + "\n" + actCamino.getIndX() + "/" +actCamino.getIndY() + "\n" + this.caminosGroup.getLength());
                 actCamino.on('pointerdown',() => this.creaInteractuable(actCamino)); 
@@ -538,11 +547,11 @@ export default class Creative extends Phaser.Scene {
     //Determina de forma recursiva si al poner un bloque en una posición este deja un camino 
     //(comprueba en sentido de las agujas de un reloj)
     esValido(actPos,dir){
-        actPos.setTint(0x000000);
-        let tx = this.add.text(actPos.getX(),actPos.getY());
-        tx.setText("*");
+        //actPos.setTint(0x000000);
+        //let tx = this.add.text(actPos.getX(),actPos.getY());
+        //tx.setText("*");
         let valido = false;
-        console.log(actPos.getIndX() +"/"+actPos.getIndY());
+        //console.log(actPos.getIndX() +"/"+actPos.getIndY());
         if(!actPos.hasOwnProperty("final")){
             if(dir!=0 && actPos.getIndY() > 0 && !this.tableroGroup[actPos.getIndX()][actPos.getIndY() - 1].hasOwnProperty("ocupado") && !actPos.revisa("arriba")){
                 actPos.reasigna("arriba");
@@ -565,12 +574,9 @@ export default class Creative extends Phaser.Scene {
             }
 
         }else{
-            console.log("EXISTE UN CAMINO");
             valido = true;
         }
-
-        if(!valido) console.log("NO EXISTE UN CAMINO");
-
+        
         return valido;
 
     }

@@ -6,7 +6,6 @@ export default class Block extends Phaser.GameObjects.Sprite{
         this.indX = indX;
         this.indY = indY;
         this.posIngroup = posIngroup;
-        this.estado = false;
         this.direcciones = [{
             arriba : false,
             derecha : false,
@@ -84,11 +83,6 @@ export default class Block extends Phaser.GameObjects.Sprite{
     getPosEnGrupo(){
         return this.posIngroup;
     }
-
-
-
-
-
 }
 
 

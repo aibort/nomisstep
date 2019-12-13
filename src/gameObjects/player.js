@@ -9,6 +9,7 @@ export default class Player extends Phaser.GameObjects.Sprite{
         this.cursors = this.scene.input.keyboard.createCursorKeys();
         this.someKeyIsDown = false;
         this.currCursor;
+        
 
         //dirección del jugador
         const estados = {
