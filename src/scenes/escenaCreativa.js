@@ -1,9 +1,8 @@
 import Player from      "../gameObjects/player.js";
 import Wall from        "../gameObjects/wall.js";
-import Trap from        "../gameObjects/tramp.js";
 import Road from        "../gameObjects/road.js";
 import BaseBlock from   "../gameObjects/baseBlock.js";
-import Tramp from       "../gameObjects/tramp.js";
+import Trap from       "../gameObjects/trap.js";
 import Spawn from       "../gameObjects/casillaInicio.js";
 import Goal from        "../gameObjects/goal.js";
 
