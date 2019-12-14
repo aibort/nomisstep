@@ -1,5 +1,4 @@
 import Block from "./block.js";
-
 export default class Trap extends Block{
     constructor(scene, x, y,indX,indY,posIngroup){
         super(scene, x, y,'trap' ,indX,indY,posIngroup);

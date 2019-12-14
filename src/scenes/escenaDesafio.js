@@ -1,19 +1,10 @@
-//import EscenaBase from "../scenes/escenaCreativa.js";
-import Player from "../gameObjects/player.js";
-import Road from        "../gameObjects/road.js";
-import BaseBlock from   "../gameObjects/baseBlock.js";
-import Tramp from       "../gameObjects/tramp.js";
-import Wall from        "../gameObjects/wall.js";
-import Trap from        "../gameObjects/tramp.js";
-
-
 export default class Challenger extends Phaser.Scene{
     constructor(tablero,player){
         super({key:'Challenger'}); 
-<<<<<<< refs/remotes/origin/master
-        this.player;
+        this.tablero = tablero;
+        this.player = player;
     }
-    create(){
+    /*create(){
         this.player  = new Player(this,POS_CAMINO_X ,POS_CAMINO_Y,"jugador").setScale(0.5);
         //Crea la colisión entre el jugador y los distintos elementos
         this.physics.add.collider(this.player,this.baseGroup);//,this.onCollision); // revisar onCollision
@@ -31,14 +22,11 @@ export default class Challenger extends Phaser.Scene{
        
 }
 
-=======
-        this.tablero = tablero;
-        this.player = player;
-    }
+
+    }*/
     create(){
     
         console.log("Creada");
->>>>>>> ADDED: cronometro y cuando este acaba lanza la nueva escena
         //Amaro: Esto irá en la escena desafío
         //Crea la colisión entre el jugador y los distintos elementos 
         //this.physics.add.collider(this.player,this.baseGroup,this.onCollision);
@@ -59,10 +47,7 @@ export default class Challenger extends Phaser.Scene{
         //gestionar colision contra la meta
         //opcional mejorar movimiento player
         //opcional escribir sobre json los recods
-<<<<<<< refs/remotes/origin/master
 
-=======
     }
 }
->>>>>>> ADDED: cronometro y cuando este acaba lanza la nueva escena
 

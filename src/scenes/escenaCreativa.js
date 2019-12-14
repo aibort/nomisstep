@@ -1,8 +1,8 @@
 import Player from      "../gameObjects/player.js";
 import Wall from        "../gameObjects/wall.js";
+import Trap from        "../gameObjects/trap.js";
 import Road from        "../gameObjects/road.js";
 import BaseBlock from   "../gameObjects/baseBlock.js";
-import Trap from       "../gameObjects/trap.js";
 import Spawn from       "../gameObjects/casillaInicio.js";
 import Goal from        "../gameObjects/goal.js";
 
@@ -85,7 +85,6 @@ export default class Creative extends Phaser.Scene {
     }
 
     create() { 
-         //this.emitter = EventManager.getInstance(); //AQUI no funciona
         //inicialización de grupos
         this.baseGroup      = this.add.group();
         this.caminosGroup   = this.add.group();
@@ -105,7 +104,6 @@ export default class Creative extends Phaser.Scene {
 
         //Animaciones
         this.creaToqueAnim();
-        //this.input.on('pointerdown',this.startDrag, this);
         
         //Creación del menu de herramientas
         this.creaMenuHerramientas();
@@ -144,23 +142,20 @@ export default class Creative extends Phaser.Scene {
     }
 
     update(time,delta){ 
-        this.actTime -= delta;
         this.menuHerramientas.getAt(7).setText('Time: ' + (this.timedEvent.getProgress() * this.tiempoParaCambio / 1000).toString().substr(0,3));
         this.menuHerramientas.getAt(1).setText(('Muros: ' + this.numMuros));
         this.menuHerramientas.getAt(2).setText(('Trampas: ' + this.numTrampas));
-        //si pasa el tiempo(){ carga leve();
-
-        
     }
 
     //Métodos 
     //Se encarga de preparar todo para el cambio de escena al acabar el tiempo de creación
     tiempoFuera(){
+        //Crear player
+        this.player = new Player(this,this.spawn.getX(),this.spawn.getY(),'player');
+        //Gestionar collisiones
+        
         //Crear escena
-        //var desafio = this.scene.add("Challenger", this,true);
-        this.scene.start("Challenger",this.tableroGroup,this.player);
-        //desafio.start("Challenger",this.trapGroup,this.player);
-        //desafio.start(this.tableroGroup,this.player);
+        //this.scene.start("Challenger",this.tableroGroup,this.player);
         console.log("TIEMPO FUERA!");
     }
 
@@ -368,7 +363,7 @@ export default class Creative extends Phaser.Scene {
 
     //Crea una trampa en la posición de un camino determinado
     creaTrampa(currCamino){
-        let currTrampa = new Tramp(this,currCamino.getX(),currCamino.getY(),currCamino.getIndX(),currCamino.getIndY(),5);
+        let currTrampa = new Trap(this,currCamino.getX(),currCamino.getY(),currCamino.getIndX(),currCamino.getIndY(),5);
         let tx = this.add.text(currTrampa.getX() - 30,currTrampa.getY() - 30);
         tx.setText(currTrampa.getX() + "/" + currTrampa.getY() + "\n" + currTrampa.getIndX() + "/" +currTrampa.getIndY() + "\n" + "?");
         currTrampa.on('pointerdown',() => this.quitaTrampaPoneCamino(currTrampa)); 
