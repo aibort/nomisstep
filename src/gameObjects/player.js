@@ -24,13 +24,17 @@ export default class Player extends Phaser.GameObjects.Sprite{
         //métodos
         this.RespawnPlayer();
         this.CambiaDir(status);
+        this.salto;
+
+
     }
-    
+
     create(){
 
         this.estado = estados.ARRIBA;
         this.xPos = x;
         this.yPos = y;
+
     }
 
     preUpdate(){

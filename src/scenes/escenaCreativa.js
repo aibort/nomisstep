@@ -73,7 +73,9 @@ export default class Creative extends Phaser.Scene {
         this.metaPuesta = false;
 
         //Variables para agregar sonidos
-        this.temaFondo ;
+        this.temaFondo;
+
+        this.bg;
 
         //Variable que controla el tiempo
         this.timedEvent;
@@ -96,6 +98,9 @@ export default class Creative extends Phaser.Scene {
             this.tableroGroup[y] = [NUM_CAMINOS_Y];
         }
 
+        //Fondo de la escena
+        this.bg = this.add.sprite(700,400,'creativaBG').setScale(0.5);
+
         //Creación de los caminos en el estado inicial
         this.CreaCaminos(); 
 
@@ -110,11 +115,7 @@ export default class Creative extends Phaser.Scene {
         //Agregar audios
         this.temaFondo = this.sound.add('creativaTema').play();
 
-        //Agrega evento de cambio de escena
-        this.timedEvent = this.time.delayedCall(this.tiempoParaCambio, this.tiempoFuera, [], this);
-
-
-
+        
         /*this.caminosGroup.children.iterate(item => {
             item.on('pointerdown',function(pointer){
                 console.log("GG");
@@ -142,20 +143,40 @@ export default class Creative extends Phaser.Scene {
     }
 
     update(time,delta){ 
-        this.menuHerramientas.getAt(7).setText('Time: ' + (this.timedEvent.getProgress() * this.tiempoParaCambio / 1000).toString().substr(0,3));
         this.menuHerramientas.getAt(1).setText(('Muros: ' + this.numMuros));
         this.menuHerramientas.getAt(2).setText(('Trampas: ' + this.numTrampas));
+        if(this.metaPuesta){
+            this.menuHerramientas.getAt(7).setText('Time: ' + 
+            (this.timedEvent.getProgress() * this.tiempoParaCambio / 1000).toString().substr(0,3));
+        }
     }
 
     //Métodos 
+
+    getBG(){
+        return this.baseGroup;
+    }
+
     //Se encarga de preparar todo para el cambio de escena al acabar el tiempo de creación
     tiempoFuera(){
-        //Crear player
-        this.player = new Player(this,this.spawn.getX(),this.spawn.getY(),'player');
+        //Crear player en la posición del spawn
+        this.player = new Player(this,this.spawn.getX(),this.spawn.getY(),'jugador').setScale(0.5);;
         //Gestionar collisiones
-        
+        this.tweens.add({
+            targets: this.player,
+            scale: 1.5,
+            duration: 1000,
+            delay: 100,
+            yoyo: true,
+        });
+
+        this.tweens.add({
+            targets: this.player,
+            ease: 'Quintic.Out',
+            y: '-=70',
+        });
         //Crear escena
-        //this.scene.start("Challenger",this.tableroGroup,this.player);
+        this.scene.start("Challenger",this);
         console.log("TIEMPO FUERA!");
     }
 
@@ -195,9 +216,8 @@ export default class Creative extends Phaser.Scene {
         this.menuHerramientas.add(boton_quitaMuro);//6
 
         //Inicialización del texto para el timer
-        this.textTiempo = this.add.text(SUB_MENU_X - 115, SUB_MEU_Y + 100 , 'score: 0', { fontSize: '32px', fill: '#000' });
+        this.textTiempo = this.add.text(SUB_MENU_X - 115, SUB_MEU_Y + 100 , 'Waiting ', { fontSize: '32px', fill: '#000' });
         this.textTiempo.setScale(0.8);
-        this.textTiempo.setText('Tiempo ' + this.actTime);
         this.menuHerramientas.add(this.textTiempo);//7
 
         //Inicializa el tablero de ayuda
@@ -219,7 +239,6 @@ export default class Creative extends Phaser.Scene {
             this.puedoBorrarTrampa = false;
             this.puedoQuitarMuro = false;
             console.log("PuedoPonerMuro");
-
         }
 
     }
@@ -384,7 +403,6 @@ export default class Creative extends Phaser.Scene {
 
     //Después del tocar una casilla se encarga de determinar qué elemento poner
     creaInteractuable(currCamino){ 
-       
         if(this.puedoPonerMuro && this.numMuros > 0){
             let currMuro = this.creaMuro(currCamino);
             if(this.esValido(this.spawn,-1)){
@@ -445,6 +463,8 @@ export default class Creative extends Phaser.Scene {
                 repeatDelay: 200
             });
             currCamino.destroy();
+            //Agrega evento de cambio de escena y empieza a correr el tiempo
+            this.timedEvent = this.time.delayedCall(this.tiempoParaCambio, this.tiempoFuera, [], this);
             this.menuHerramientas.getAt(9).setText('Create the stage '+ "\n" + "before time runs out.");
 
         this.caminosGroup.children.each(function(camino) {

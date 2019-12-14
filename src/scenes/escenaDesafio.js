@@ -1,9 +1,10 @@
 export default class Challenger extends Phaser.Scene{
-    constructor(tablero,player){
-        super({key:'Challenger'}); 
-        this.tablero = tablero;
-        this.player = player;
+    constructor(){
+        super({key:'Challenger'},); 
+    
     }
+
+    
     /*create(){
         this.player  = new Player(this,POS_CAMINO_X ,POS_CAMINO_Y,"jugador").setScale(0.5);
         //Crea la colisión entre el jugador y los distintos elementos
@@ -27,6 +28,12 @@ export default class Challenger extends Phaser.Scene{
     create(){
     
         console.log("Creada");
+        let escenaCreativa = this.scene.get('Creative');
+        console.log(escenaCreativa.getBG());
+
+        /*for(let x = 0; x < 5; x ++ ){
+            this.tablero[x][1].setVisible(true);
+        }*/
         //Amaro: Esto irá en la escena desafío
         //Crea la colisión entre el jugador y los distintos elementos 
         //this.physics.add.collider(this.player,this.baseGroup,this.onCollision);
