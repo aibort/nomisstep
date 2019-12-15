@@ -151,11 +151,17 @@ export default class Creative extends Phaser.Scene {
     //Se encarga de preparar todo para el cambio de escena al acabar el tiempo de creación
     tiempoFuera(){
         //Crear player
-        this.player = new Player(this,this.spawn.getX(),this.spawn.getY(),'player');
+        this.player = new Player(this,this.spawn.getX(),this.spawn.getY(),'jugador');
+        this.player.setScale(0.5);
+        this.cameras.main.startFollow(this.player);
+        this.cameras.main.setViewport(450, 200, 400, 400);
+        this.menuHerramientas.destroy;
+        this.fondoMenuHerramintas.destroy;
+        this.tableroGroup = this.CreaBase(); 
         //Gestionar collisiones
         
         //Crear escena
-        //this.scene.start("Challenger",this.tableroGroup,this.player);
+        this.scene.start("Challenger",this.tableroGroup,this.player);
         console.log("TIEMPO FUERA!");
     }
 
