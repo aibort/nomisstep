@@ -4,10 +4,22 @@ export default class Menu extends Phaser.Scene{
         super({key:'MenuGame'}); 
 
         this.tweenMoving = false;
+        this.temaFondo ;
     }
 
     create(){
         console.log("Escena menú");
+        let config = ({
+          mute: false,
+          volume: 1,
+          rate: 1,
+          detune: 0,
+          seek: 0,
+          loop: true,  
+          delay: 0
+        })
+        this.temaFondo = this.sound.add('menuTema');
+        this.temaFondo.play(config);
         let fondo = this.add.sprite(700,400,'menuBG').setScale(1.5);
         let boton_creativo = this.add.sprite(700,0,'botonCreativa').setInteractive().setScale(0.5);
         boton_creativo.on('pointerdown',() => this.cargaEscenaCreativa());
@@ -15,7 +27,7 @@ export default class Menu extends Phaser.Scene{
         boton_creativo.on('pointerout',() => this.paraTween(boton_creativo));
         this.tweens.add({
           targets: boton_creativo,
-          y: '+=500',
+          y: '+=500', 
           ease: 'Quintic.Out',
           duration: 500,
         });
@@ -42,7 +54,7 @@ export default class Menu extends Phaser.Scene{
 
         let amaro_boton = this.add.sprite(1100,0,'amaroBoton').setInteractive().setScale(0.2);
         amaro_boton.on('pointerover',() => this.aplicaEfectoFotos(amaro_boton));
-        //amaro_boton.on('pointerout',() => this.aplicaEfectoFotos(amaro_boton));
+        //amaro_boton.on('pointerout',() => this.aplicaEfectoFotos(amaro_boton));//Poner creditos
         this.tweens.add({
           targets: amaro_boton,
           y: '+=700', 
@@ -59,12 +71,10 @@ export default class Menu extends Phaser.Scene{
           ease: 'Sine.Out',
           duration: 1000,
         });
-
-        //albertoBoton
-
       }
 
     paraTween(_target){
+      this.temaFondo.setVolume(1);
       _target.setTint(0xFFFFFF);
       this.tweens.add({
         targets: _target,
@@ -78,9 +88,11 @@ export default class Menu extends Phaser.Scene{
 
     cargaEscenaCreativa(){
       this.scene.start('Creative');
+      this.temaFondo.stop();
     }
 
     aplicaTween(_target){
+      this.temaFondo.setVolume(0.5);
       _target.setTint(0x696969);
       this.tweens.add({
         targets: _target,
@@ -97,6 +109,10 @@ export default class Menu extends Phaser.Scene{
         angle: '+=360', 
         duration: 1000,
       });
+    }
+
+    abreCreditos(_sujeto){
+      
     }
 
 

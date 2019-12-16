@@ -4,7 +4,8 @@ export default class Boot extends Phaser.Scene{
     }
     preload(){
         console.log("escena Boot");
-        //Cargar imagenes del juego
+        //Cargar imagenes del juego //loading
+        this.load.image('loading','./assets/Imagenes/loading.png');
         this.load.image('inicio','./assets/Imagenes/inicio.png');
         this.load.image('meta','./assets/Imagenes/meta.png');
         this.load.image('muro','./assets/Imagenes/muro.png');
@@ -45,15 +46,16 @@ export default class Boot extends Phaser.Scene{
         //Cargar sonidos
         this.load.audio('trampaAudio','./assets/Audios/trampaSonido.mp3' );
         this.load.audio('creativaTema','./assets/Audios/audioCreativa.mp3' );
+        this.load.audio('menuTema','./assets/Audios/audioMenu.mp3' );
+        this.load.audio('audioDesafio','./assets/Audios/audioDesafio.mp3' );
+
+
 
 
 
     }
     //Cambio a la escene creativa
     create(){
-        //this.scene.start('Creative');
         this.scene.start('MenuGame');
-
-
     }
 }

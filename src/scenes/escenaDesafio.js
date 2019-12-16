@@ -1,60 +1,109 @@
+import Player from      "../gameObjects/player.js";
+
+
 export default class Challenger extends Phaser.Scene{
     constructor(){
-        super({key:'Challenger'},); 
-    
+        super({key:'Challenger'}); 
+        
+        this.temaFondo;
+        this.tablero;
+        this.player;
+        this.spawn;
+        this.meta;
+        this.trampas;
+        this.muros;
+        this.bases;
+        this.caminos;
+        this.playerBloqueado = false;
+        this.desactivadores;
     }
 
-    
-    /*create(){
-        this.player  = new Player(this,POS_CAMINO_X ,POS_CAMINO_Y,"jugador").setScale(0.5);
-        //Crea la colisión entre el jugador y los distintos elementos
-        this.physics.add.collider(this.player,this.baseGroup);//,this.onCollision); // revisar onCollision
-        this.physics.add.collider(this.player,this.trapGroup,this.onCollision);
-        this.cameras.main.startFollow(this.player);
-        this.cameras.main.setViewport(450, 200, 400, 400);
-        //this.scene.load('Challenger',info);
-        //Phaser.Scene.call(,)
-        //cargar desde tablero, 
-        //trampa invisible como camino y con posibilidiad de desactivarla (sprite si es posible)
-    } 
-        onCollision(){
-            this.player.setPosition(this.sys.game.config.width/2, this.sys.game.config.height/2);
-        }
-       
-}
-
-
-    }*/
     create(){
     
         console.log("Creada");
+        let config = ({
+            mute: false,
+            volume: 0.7,
+            rate: 1,
+            detune: 0,
+            seek: 0,
+            loop: true,  
+            delay: 0,
+            start : 2
+          })
+        this.temaFondo = this.sound.add('audioDesafio');
+        this.temaFondo.play(config);
         let escenaCreativa = this.scene.get('Creative');
-        console.log(escenaCreativa.getBG());
+        this.add.sprite(escenaCreativa.getBG().x, escenaCreativa.getBG().y,escenaCreativa.getBG().texture.key ).setScale(0.5);
+        this.tablero = escenaCreativa.getTablero();
 
-        /*for(let x = 0; x < 5; x ++ ){
-            this.tablero[x][1].setVisible(true);
-        }*/
-        //Amaro: Esto irá en la escena desafío
-        //Crea la colisión entre el jugador y los distintos elementos 
-        //this.physics.add.collider(this.player,this.baseGroup,this.onCollision);
-        //this.physics.add.collider(this.player,this.trapGroup,this.onCollision);
-        //this.cameras.main.startFollow(this.player);
-        //this.cameras.main.setViewport(450, 200, 400, 400);
+        this.muros = escenaCreativa.getMuros();
+        this.spawn = escenaCreativa.getSpawn();
+        this.meta = escenaCreativa.getMeta();
+        this.bases = escenaCreativa.getBase();
+        this.trampas = escenaCreativa.getTrampas();
+        this.caminos = escenaCreativa.getCaminos();
+        this.desactivadores =  escenaCreativa.getNumTrampas();
+
+        this.add.sprite(this.meta.x,this.meta.y,this.meta.texture.key);
+        this.add.sprite(this.spawn.x,this.spawn.y,this.spawn.texture.key);
+    
+        this.player = new Player(this,this.spawn.getX(),this.spawn.getY(),'jugador').setScale(0.5);
+
+        //Creacion de las bases exteriores
+        this.physics.add.collider(this.player,this.bases,this.colisionContraBase());
+        this.bases.getChildren().forEach(function(base) {
+            this.add.sprite(base.x,base.y,base.texture.key);
+            this.physics.add.collider(this.player,this.base,this.colisionContraBase());
+        }, this);
+
+        //Creación de muros
+        this.physics.add.collider(this.player,this.muros,this.colisionContraMuro());
+        this.muros.getChildren().forEach(function(muro) {
+            this.add.sprite(muro.x,muro.y,muro.texture.key);
+            this.physics.add.collider(this.player,this.muro,this.colisionContraBase());
+        }, this);
+
+        //Creación de caminos
+        this.physics.add.collider(this.player,this.caminos,this.colisionContraMuro());
+        this.caminos.getChildren().forEach(function(camino) {
+            this.add.sprite(camino.x,camino.y,camino.texture.key);
+            this.physics.add.collider(this.player,this.camino,this.colisionContraBase());
+        }, this);
+
+        //Creación de trampas   
+        this.trampas.getChildren().forEach(function(trampa) {
+            this.add.sprite(trampa.x,trampa.y,trampa.texture.key);
+            this.physics.add.collider(this.player,trampa,() => this.colisionContraTrampa(trampa));
+        }, this);
+
+        console.log(this.meta);
+        //Lógica de la meta
+        this.physics.add.collider(this.player,this.meta,() => this.colisionContraMeta());
 
 
-        //Poner base
-        //renderizar tablero
-        //set visible player
-        //*complemento de trampa para exploten
-        //se tiene que borrar la trampa del tablero o  trampa ser visible y quitar colision
-        //un timer para saber
-        //Crear clase desactivadora de trampas
-        //player tween
-        
-        //gestionar colision contra la meta
-        //opcional mejorar movimiento player
-        //opcional escribir sobre json los recods
+        //Cámara
+        this.player.depth = 1;
+        this.cameras.main.startFollow(this.player);
+        this.cameras.main.setZoom(4);
+    }
 
+    colisionContraMuro(){
+        console.log("Contra muro");
+    }
+
+    colisionContraTrampa(_trampa){
+        this.physics.world.disable(_trampa);
+        this.player.mueveAlSpawn();
+    }
+
+    colisionContraBase(){
+        console.log("Contra base");
+    }
+
+    colisionContraMeta(){
+        console.log("Cambio de escena")
+        this.scene.start('MenuGame');
     }
 }
 

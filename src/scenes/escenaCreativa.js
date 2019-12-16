@@ -5,6 +5,7 @@ import Road from        "../gameObjects/road.js";
 import BaseBlock from   "../gameObjects/baseBlock.js";
 import Spawn from       "../gameObjects/casillaInicio.js";
 import Goal from        "../gameObjects/goal.js";
+import Challenger from  "../scenes/escenaDesafio.js";
 
 
 //Globales para los caminos
@@ -113,7 +114,17 @@ export default class Creative extends Phaser.Scene {
         //Creación del menu de herramientas
         this.creaMenuHerramientas();
         //Agregar audios
-        this.temaFondo = this.sound.add('creativaTema').play();
+        let config = ({
+            mute: false,
+            volume: 0.7,
+            rate: 1,
+            detune: 0,
+            seek: 0,
+            loop: true,  
+            delay: 0
+          })
+        this.temaFondo = this.sound.add('creativaTema');
+        this.temaFondo.play(config);
 
         
         /*this.caminosGroup.children.iterate(item => {
@@ -128,18 +139,6 @@ export default class Creative extends Phaser.Scene {
             });
         })*/
 
-        
-
-        /*this.tweens.add({
-            targets: grupoMuros.getChildren(),
-            duration: 600,
-            ease: 'Power1',
-            y: 100,
-            repeat: -1,
-            yoyo: true
-        });*/   
-
-
     }
 
     update(time,delta){ 
@@ -152,17 +151,52 @@ export default class Creative extends Phaser.Scene {
     }
 
     //Métodos 
+    getTablero(){
+        return this.tableroGroup;
+    }
 
     getBG(){
+        return this.bg;
+    }
+
+    getSpawn(){
+        return this.spawn;
+    }
+
+    getPlayer(){
+        return this.player;
+    }
+
+    getTrampas(){
+        return this.trapGroup;
+    }
+
+    getMuros(){
+        return this.murosGroup;
+    }
+
+    getBase(){
         return this.baseGroup;
+    }
+
+    getCaminos(){
+        return this.caminosGroup;
+    }
+
+    getMeta(){
+        return this.meta;
+    }
+
+    getNumTrampas(){
+        return this.numTrampas;
     }
 
     //Se encarga de preparar todo para el cambio de escena al acabar el tiempo de creación
     tiempoFuera(){
         //Crear player en la posición del spawn
-        this.player = new Player(this,this.spawn.getX(),this.spawn.getY(),'jugador').setScale(0.5);;
+        //this.player = new Player(this,this.spawn.getX(),this.spawn.getY(),'jugador').setScale(0.5);;
         //Gestionar collisiones
-        this.tweens.add({
+        /*this.tweens.add({
             targets: this.player,
             scale: 1.5,
             duration: 1000,
@@ -174,10 +208,13 @@ export default class Creative extends Phaser.Scene {
             targets: this.player,
             ease: 'Quintic.Out',
             y: '-=70',
-        });
+        }); */
         //Crear escena
-        this.scene.start("Challenger",this);
         console.log("TIEMPO FUERA!");
+        this.temaFondo.stop();
+        this.scene.switch('Challenger');
+
+
     }
 
     //Crea los elementos del menú y los ingresa a un container
@@ -389,6 +426,7 @@ export default class Creative extends Phaser.Scene {
         let audio = this.sound.add('trampaAudio');
         audio.play();
         this.trapGroup.add(currTrampa);
+        this.tableroGroup[currCamino.getIndX()][currCamino.getIndY()] = currTrampa;
         this.numTrampas--;
         this.tweens.add({
             targets: currTrampa,
@@ -452,7 +490,6 @@ export default class Creative extends Phaser.Scene {
             let caminoX = currCamino.getX();
             let caminoY = currCamino.getY();
             this.meta = new Goal (this,caminoX,caminoY,currCamino.getIndX(),currCamino.getIndY());
-            console.log(this.meta);
             this.tableroGroup [currCamino.getIndX()][currCamino.getIndY()] = this.meta;
             this.tweens.add({
                 targets: this.meta,

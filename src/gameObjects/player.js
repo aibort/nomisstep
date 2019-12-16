@@ -3,6 +3,7 @@ export default class Player extends Phaser.GameObjects.Sprite{
         super(scene,x,y,type);
         this.scene.add.existing(this); 
         this.scene.physics.add.existing(this);   
+        this.body.setCollideWorldBounds(true);
         this.xPos = x;
         this.yPos = y;
         this.speed = 150;
@@ -22,7 +23,6 @@ export default class Player extends Phaser.GameObjects.Sprite{
         //Trampas
         this.trampas = [];
         //métodos
-        this.RespawnPlayer();
         this.CambiaDir(status);
         this.salto;
 
@@ -31,11 +31,9 @@ export default class Player extends Phaser.GameObjects.Sprite{
 
     create(){
 
-        this.estado = estados.ARRIBA;
-        this.xPos = x;
-        this.yPos = y;
-
     }
+
+
 
     preUpdate(){
 
@@ -75,7 +73,8 @@ export default class Player extends Phaser.GameObjects.Sprite{
         }
     }
 
-    RespawnPlayer(){
+
+    mueveAlSpawn(){
         this.x = this.xPos;
         this.y = this.yPos;
     }

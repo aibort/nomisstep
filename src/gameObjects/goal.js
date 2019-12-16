@@ -4,6 +4,7 @@ export default class Goal extends Block{
         super(scene, x, y, 'meta',indX,indY,posIngroup);
         this.setInteractive();
         this.final = true;
+        this.scene.physics.add.existing(this);   
     }
 
     getX(){
