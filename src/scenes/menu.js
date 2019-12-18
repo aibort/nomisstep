@@ -88,6 +88,7 @@ export default class Menu extends Phaser.Scene{
 
     cargaEscenaCreativa(){
       this.scene.start('Creative');
+      
       this.temaFondo.stop();
     }
 

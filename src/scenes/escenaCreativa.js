@@ -80,10 +80,11 @@ export default class Creative extends Phaser.Scene {
 
         //Variable que controla el tiempo
         this.timedEvent;
-        this.tiempoParaCambio = 6000;
+        this.tiempoParaCambio = 10000;
     }
 
     preload() { 
+        //this.scene.restart("Creative");
         console.log("Escena creativa cargada");
     }
 
@@ -190,31 +191,18 @@ export default class Creative extends Phaser.Scene {
     getNumTrampas(){
         return this.numTrampas;
     }
+    getNumBaseX(){
+        return NUM_BASE_X;
+    }
+    getNumBaseY(){
+        return NUM_BASE_Y;
+    }
 
     //Se encarga de preparar todo para el cambio de escena al acabar el tiempo de creación
     tiempoFuera(){
-        //Crear player en la posición del spawn
-        //this.player = new Player(this,this.spawn.getX(),this.spawn.getY(),'jugador').setScale(0.5);;
-        //Gestionar collisiones
-        /*this.tweens.add({
-            targets: this.player,
-            scale: 1.5,
-            duration: 1000,
-            delay: 100,
-            yoyo: true,
-        });
-
-        this.tweens.add({
-            targets: this.player,
-            ease: 'Quintic.Out',
-            y: '-=70',
-        }); */
-        //Crear escena
         console.log("TIEMPO FUERA!");
         this.temaFondo.stop();
         this.scene.switch('Challenger');
-
-
     }
 
     //Crea los elementos del menú y los ingresa a un container
@@ -328,7 +316,6 @@ export default class Creative extends Phaser.Scene {
     CreaBase(){
         let contador = 0;
         for(let i = 0 ; i < NUM_BASE_Y ; i++){
-            
             if(i == 0 || contador == NUM_BASE_Y - 1){
                 for(let j = 0 ; j < NUM_BASE_X ; j++){
                     let actBase = new BaseBlock(this,POS_BASE_X + BASE_SIZE_X * j,POS_BASE_Y + BASE_SIZE_Y * contador);
@@ -342,8 +329,8 @@ export default class Creative extends Phaser.Scene {
                 this.baseGroup.add(baseDer);
                 //this.tableroGroup[i][contador] = baseDer;
                 let baseIzq = new BaseBlock(this,POS_BASE_X + BASE_SIZE_X * (NUM_BASE_X - 1) ,POS_BASE_Y + BASE_SIZE_Y * contador);
-                this.baseGroup.add(baseIzq);
                 //this.tableroGroup[NUM_BASE_X - 1][contador] = baseIzq;
+                this.baseGroup.add(baseIzq);
                 contador++;
 
             }
@@ -599,11 +586,7 @@ export default class Creative extends Phaser.Scene {
     //Determina de forma recursiva si al poner un bloque en una posición este deja un camino 
     //(comprueba en sentido de las agujas de un reloj)
     esValido(actPos,dir){
-        //actPos.setTint(0x000000);
-        //let tx = this.add.text(actPos.getX(),actPos.getY());
-        //tx.setText("*");
         let valido = false;
-        //console.log(actPos.getIndX() +"/"+actPos.getIndY());
         if(!actPos.hasOwnProperty("final")){
             if(dir!=0 && actPos.getIndY() > 0 && !this.tableroGroup[actPos.getIndX()][actPos.getIndY() - 1].hasOwnProperty("ocupado") && !actPos.revisa("arriba")){
                 actPos.reasigna("arriba");
@@ -632,5 +615,6 @@ export default class Creative extends Phaser.Scene {
         return valido;
 
     }
+
 
 }

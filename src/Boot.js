@@ -12,7 +12,8 @@ export default class Boot extends Phaser.Scene{
         this.load.image('camino','./assets/Imagenes/bloque.png');
         this.load.image('jugador', './assets/Imagenes/personaje.png');
         this.load.image('bloqueBase', './assets/Imagenes/baseBlock.png');
-        this.load.image('trap', './assets/Imagenes/trap.png')
+        this.load.image('trap', './assets/Imagenes/trap.png');
+        this.load.image('penalizado', './assets/Botones/penalizado.png');
 
         //Fondo de escenas / menus
         this.load.image('baseMenu', './assets/Imagenes/fondoMenu.png');

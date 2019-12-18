@@ -64,6 +64,7 @@ export default class Block extends Phaser.GameObjects.Sprite{
         this.direcciones.izquierda = false;
     }
 
+
     getX(){
         return this.x;
     }

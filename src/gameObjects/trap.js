@@ -5,7 +5,8 @@ export default class Trap extends Block{
         this.scene.physics.add.existing(this, false);
         this.setInteractive();
         this.body.immovable = true;
-        this.setScale(0.4);
+        this.trampaActiva = true;
+        this.estado = false;
     }
     getX(){
         return this.x;
@@ -13,6 +14,23 @@ export default class Trap extends Block{
 
     getY(){
         return this.y;
+    }
+
+    desarma(){
+        this.trampaActiva = false;
+    }
+
+    cambiaEstado(actEstado){
+        this.estado = actEstado;
+    }
+
+    preupdate(){
+        if(this.estado){
+            this.setTint(0x938E8E);
+        }   
+        else{
+            this.setTint(0xFFFFFF);
+        }
     }
 
 
