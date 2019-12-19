@@ -6,6 +6,15 @@ export default class Road extends Block{
         this.setInteractive();   
         this.tieneTrampa = false;
         this.estado = false;
+        this.revisado = false;
+    }
+
+    haSidoDesactivado(){
+        return this.revisado;
+    }
+
+    desactivador(){
+        this.revisado = true;
     }
 
     cambiaColor(_color){
@@ -16,13 +25,22 @@ export default class Road extends Block{
         this.estado = actEstado;
     }
 
-    preupdate(){
+    getEstado(){
+        return this.estado;
+    }
+
+    preUpdate(){
+
         if(this.estado){
-            this.setTint(0x938E8E);
-        }   
-        else{
-            this.setTint(0xFFFFFF);
-        }
+            if(this.scene.getElegido() == this){
+                this.setTint(0xAFAFAF);
+            }
+            else{
+                this.setTint(0xFFFFFF);
+                this.estado = false;
+
+            }
+        } 
     }
 
 }

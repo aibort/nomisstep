@@ -33,6 +33,14 @@ export default class Player extends Phaser.GameObjects.Sprite{
     }
 
 
+    getX(){
+        return this.x;
+    }
+
+    getY(){
+        return this.y;
+    }
+
 
     preUpdate(){
     
@@ -63,7 +71,6 @@ export default class Player extends Phaser.GameObjects.Sprite{
             }
             else{
                 this.someKeyIsDown = false;
-                this.scene.quitaTintElegido();
                 this.setTint(0xffffff);
                 this.body.setVelocity(0);
             }
@@ -74,19 +81,13 @@ export default class Player extends Phaser.GameObjects.Sprite{
             if(this.tiempoParaDespenalizar <= 0){
                 this.penalizado = false;
                 this.scene.quitaBloqueo();
-                console.log("Quita bloqueo");
             }
-            else{
-                this.scene.escribeTiempoEspera();
-            }
-
         }
     }
 
     cambiaEstado(_estado, tiempo){
         this.penalizado = _estado;
         this.tiempoParaDespenalizar = tiempo;
-        this.scene.shakeScene();
     }
 
     tiempoParaEsperar(){
@@ -108,7 +109,6 @@ export default class Player extends Phaser.GameObjects.Sprite{
 
     
     CambiaDir(num){
-        this.scene.quitaTintElegido();
         switch(num){
             case 0:
                 this.setAngle(360);

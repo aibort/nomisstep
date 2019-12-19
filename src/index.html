@@ -19,6 +19,7 @@
         import Boot         from    './Boot.js'
         import Creative     from    './scenes/escenaCreativa.js'
         import Challenger   from    './scenes/escenaDesafio.js'
+        import HUD          from    './scenes/HUD.js'
 
         var config = {
             type: Phaser.AUTO,
@@ -33,7 +34,7 @@
                 mode: Phaser.Scale.FIT,
                 autoCenter: Phaser.Scale.CENTER_BOTH
             },
-            scene: [Boot,MenuGame, Creative, Challenger],
+            scene: [Boot,MenuGame, Creative, Challenger, HUD],
             physics: { default: 'arcade', arcade: { debug: true } }
         };
         new Phaser.Game(config);

@@ -189,7 +189,7 @@ export default class Creative extends Phaser.Scene {
     }
 
     getNumTrampas(){
-        return this.numTrampas;
+        return this.trapGroup.getLength();
     }
     getNumBaseX(){
         return NUM_BASE_X;

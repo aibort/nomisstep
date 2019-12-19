@@ -6,6 +6,8 @@ import Spawn from "../gameObjects/casillaInicio.js";
 import Wall from "../gameObjects/wall.js";
 import BaseBlock from "../gameObjects/baseBlock.js";
 
+const TXT_INI_POS_X = 1000;
+const TXT_INI_POS_Y = 200;
 
 export default class Challenger extends Phaser.Scene{
     constructor(){
@@ -21,10 +23,10 @@ export default class Challenger extends Phaser.Scene{
         this.bases;
         this.caminos;
         this.playerBloqueado = false;
-        this.desactivadores;
-        this.cursors;
+        //this.cursors;
         //Array para comprobar los caminos
         this.arrayCaminos = Array;
+        //Variables para determinar a que casilla está apuntando el jugador
         this.caminoElegido;
         this.elegidoX;
         this.elegidoY;
@@ -33,14 +35,20 @@ export default class Challenger extends Phaser.Scene{
         this.revisandoLap = false;
 
         //Tiempo a penalizar 
-        this.tiempoBloqueado;
-        this.penalizadoImagen;
-        this.teclaEnter;
+            this.tiempoBloqueado;
+            this.penalizadoImagen;
+        //Desarmadores
+            //Tecla para poner desarmadores
+            this.teclaEnter;
+            //El numero de desactivadores que tienes
+            this.desactivadores;
+            //Texto para renderizar la cantidad de desactivadores que quedan
+            this.textoDesarmadores;
 
     }
 
     preload(){
-        //this.cursors = this.input.keyboard.createCursorKeys();
+        //cargar cancion
 
     }
 
@@ -62,14 +70,11 @@ export default class Challenger extends Phaser.Scene{
         let escenaCreativa = this.scene.get('Creative');
         this.add.sprite(escenaCreativa.getBG().x, escenaCreativa.getBG().y,escenaCreativa.getBG().texture.key ).setScale(0.5);
 
-
-
-
         this.tablero = escenaCreativa.getTablero();
         this.bases = escenaCreativa.getBase();
         this.desactivadores =  escenaCreativa.getNumTrampas();
+        
 
-        this.tiempoBloqueado = this.add.text({ fontSize: '32px', fill: '#000' });
         
         //Creación del player en la posición del spawn
         this.player = new Player(this,escenaCreativa.getSpawn().getX(),escenaCreativa.getSpawn().getY(),'jugador').setScale(0.5);
@@ -88,11 +93,11 @@ export default class Challenger extends Phaser.Scene{
             this.arrayCaminos[x] = [escenaCreativa.getNumBaseY() - 2];
         }
 
-        //Creación de los bloques del juego
+        //Creación de los bloques del juego en función del tablero de la escene creativa
         let contador = 0;
         for(let x = 0 ; x < escenaCreativa.getNumBaseX() - 2; x++){
             for(let y = 0 ; y < escenaCreativa.getNumBaseY()- 2; y++){
-                //Se crean con la información del tablero creado en la escena creactiva
+                //caminos
                 if(this.tablero[x][y].texture.key == "camino" || this.tablero[x][y].texture.key == "caminoAnim"){
                     this.arrayCaminos[x][y] = 
                     new Road(this, this.tablero[x][y].getX() ,this.tablero[x][y].getY(), this.tablero[x][y].getIndX(), 
@@ -101,6 +106,7 @@ export default class Challenger extends Phaser.Scene{
                     //Gestión de overlap del jugador y de los caminos
                     this.physics.add.overlap(this.player,this.arrayCaminos[x][y],()=> this.overlapCamino(x,y,this.arrayCaminos[x][y]));
                 }
+                //Bloques base
                 else if(this.tablero[x][y].texture.key == "bloqueBase"){
                     this.arrayCaminos[x][y] = 
                     new BaseBlock(this, this.tablero[x][y].getX() ,this.tablero[x][y].getY(), this.tablero[x][y].getIndX(), 
@@ -109,84 +115,91 @@ export default class Challenger extends Phaser.Scene{
                     this.physics.add.collider(this.player,this.arrayCaminos[x][y]);
 
                 }
-                //Creación de una trampa en función del tablero de la escena creativa
+                //Creación de las trampas
                 else if(this.tablero[x][y].texture.key == "trap"){
                     this.arrayCaminos[x][y] = 
                     new Trap(this, this.tablero[x][y].getX() ,this.tablero[x][y].getY(), this.tablero[x][y].getIndX(), 
                     this.tablero[x][y].getIndY(),contador).setTexture("camino");
                     contador++;
-
                     //Gestión de collision contra una trampa
                     //let zone = this.arrayCaminos[x][y].zone.add(this,this.arrayCaminos[x][y].x,this.arrayCaminos[x][y].y,140,140);
-                    this.physics.add.collider(this.player,this.arrayCaminos[x][y],()=> this.colisionContraTrampa(this.arrayCaminos[x][y]));
-                    contador++;
+                    let trampaColision = this.physics.add.collider(this.player,this.arrayCaminos[x][y],
+                        ()=> this.colisionContraTrampa(this.arrayCaminos[x][y]));
                     this.physics.add.overlap(this.player,this.arrayCaminos[x][y],()=> this.overlapCamino(x,y,this.arrayCaminos[x][y]));
+                    this.arrayCaminos[x][y].agregaColision(trampaColision);
                 }
+                //Creación de los muros
                 else if(this.tablero[x][y].texture.key == "muro"){
                     this.arrayCaminos[x][y] = 
                     new Wall(this, this.tablero[x][y].getX() ,this.tablero[x][y].getY(), this.tablero[x][y].getIndX(), 
                     this.tablero[x][y].getIndY(),contador);
                     contador++;
-
                     this.physics.add.collider(this.player,this.arrayCaminos[x][y]);
 
                 }   
+                //Creación de meta
                 else if(this.tablero[x][y].texture.key == "meta"){
                     this.arrayCaminos[x][y] = 
                     new Goal(this, this.tablero[x][y].getX() ,this.tablero[x][y].getY(), this.tablero[x][y].getIndX(), 
                     this.tablero[x][y].getIndY(),contador);
+                    this.meta = this.arrayCaminos[x][y];
                     contador++;
 
                     this.physics.add.collider(this.player,this.tablero[x][y],() => this.colisionContraMeta());
                 }
+                //Creación de inicio
                 else if(this.tablero[x][y].texture.key == "inicio"){
                     this.arrayCaminos[x][y] = 
                     new Spawn(this, this.tablero[x][y].getX() ,this.tablero[x][y].getY(), this.tablero[x][y].getIndX(), 
                     this.tablero[x][y].getIndY(),contador);
+                    this.spawn = this.arrayCaminos[x][y];
                     contador++;
 
                 }
                 
             }
         }
+        //Evento para colocar los salva trampas al precionar la tecla enter
         this.input.keyboard.on('keydown-' + 'ENTER',()=> this.salvaTrampa());
-
-
-
+        //Llevar al jugador arriba en la escena
+        this.player.depth = 1;
 
         //Cámara
-        this.player.depth = 1;
         //this.cameras.main.startFollow(this.player);
         //this.cameras.main.setZoom(4);
-
-        /*this.tweens.add({
-            targets: this.player,
-            scale: 1.5,
-            duration: 1000,
-            delay: 100,
-            yoyo: true,
-        });*/
-
+        //imagen que se ve al tocar una trampa
         this.penalizadoImagen = this.add.sprite(700,400,"penalizado").setVisible(false);
         this,this.penalizadoImagen.depth = 2;
+
+        this.scene.launch('HUD');
 
     }
 
     update(time,delta){
-        this.tiempoPenalizar = time / 10000;
-
     }
 
+    //Cuando el jugador activa el salva trampas
     salvaTrampa(){
-        this.arrayCaminos[this.elegidoX][this.elegidoY].setTint(0xFF00E3);
-        this.tweens.add({
-            targets: this.arrayCaminos[this.elegidoX][this.elegidoY],
-            angle: "+=25",
-            duration: 500,
-            delay: 100,
-            yoyo: true,
-            repeat : -1
-        });
+        if(this.desactivadores > 0  && this.caminoElegido.hasOwnProperty("revisado") 
+        && !this.caminoElegido.haSidoDesactivado()){
+            this.caminoElegido.desactivador();
+            this.events.emit('quitaDesactivador');
+            this.desactivadores--;
+            this.caminoElegido.setTint(0xFF00E3);
+            //En el caso de que sea una trampa, la desactiva
+            if (this.caminoElegido.hasOwnProperty("trampaActiva")){
+                this.caminoElegido.desarma();
+                this.physics.world.removeCollider(this.caminoElegido.getColision());
+            }  
+            this.tweens.add({
+                targets: this.caminoElegido,
+                scale: "+=0.25",
+                duration: 500,
+                delay: 100,
+                yoyo: true,
+                repeat : -1
+            });
+        }
     }
 
 
@@ -194,114 +207,111 @@ export default class Challenger extends Phaser.Scene{
         console.log("Contra muro");
     }
 
-    escribeTiempoEspera(){
-        this.tiempoBloqueado.setPosition(this.player.x - 10,this.player.y + 20);
-        this.tiempoBloqueado.setText((this.player.tiempoParaEsperar() / 100).toString().substr(0));
+    getDesactivadores(){
+        return this.desactivadores;
     }
 
     shakeScene(){
-        this.tiempoBloqueado.setVisible(true);
-        this.penalizadoImagen.setPosition(this.player.x,this.player.y - 75).setVisible(true).setScale(0.25);
+        this.events.emit('activaTimer');
         this.tweens.add({
             targets: this.penalizadoImagen,
             scale: '+=0.05', 
             duration: 10000,
             rereat: -1
         });
-        this.tiempoBloqueado.setVisible(true);
+        this.penalizadoImagen.setPosition(this.player.x,this.player.y - 75).setVisible(true).setScale(0.25);
+
+    }
+
+    getTiempoPenalizado(){
+        return this.player.tiempoParaEsperar();
+    }
+
+    getInicio(){
+        return this.spawn;
     }
 
     quitaBloqueo(){
+        this.events.emit('desactivaTimer');
         this.penalizadoImagen.setVisible(false);
         this.penalizadoImagen.setScale(-10);
-        this.tiempoBloqueado.setVisible(false);
     }
 
     colisionContraTrampa(_trampa){  
-        _trampa.setTint(0x00FF63);
-        _trampa.body.destroy();
-        this.player.mueveAlSpawn(); 
-        this.player.cambiaEstado(true,1000);
-    }
-
-    quitaTintElegido(){
-        if(this.caminoElegido != undefined){
-            this.caminoElegido.setTint(0xFFFFFF);
+        if(_trampa.estaActiva()){
+            _trampa.desactivador();
+            _trampa.desarma();
+            _trampa.setTexture("trap");
+            this.player.mueveAlSpawn(); 
+            this.player.cambiaEstado(true,1000);
+            this.physics.world.removeCollider(_trampa.getColision());
+            this.shakeScene();
         }
-
     }
-    //!actPos.hasOwnProperty("final")
 
+    //Devuelve el objeto que está siendo seleccionado
+    getElegido(){
+        return this.caminoElegido;
+    }
+
+    //Para determinar a que casilla está apuntando el jugador
     overlapCamino(x,y,_elem){
+        let dirPlayer = this.player.getDir();
+        let auxCamino;
+        let xAux;
+        let yAux;
+        if(!this.revisandoLap &&  (x >= 0 && x <= 9) && ( y >= 0 && y <= 8)){ //Comprueba extermos del tablero
+            this.revisandoLap = true;
+            switch (dirPlayer) {
+                case 0: //ARRIBA
+                    if(y > 0  && y < 8 && this.arrayCaminos[x][y - 1] != undefined){
+                        auxCamino = this.arrayCaminos[x][y - 1];
+                        xAux = x;
+                        yAux = y - 1;
+                    }
+                break;
+                case 1://DERECHA
+                    if(x > 0 && x < 9 && this.arrayCaminos[x + 1][y] != undefined){
+                        auxCamino = this.arrayCaminos[x + 1][y];
+                        xAux = x + 1;
+                        yAux = y;
+                    }
+                    
+                break;
+                case 2://ABAJO
+                    if(y > 0  && y < 8 && this.arrayCaminos[x][y + 1] != undefined ){
+                        auxCamino = this.arrayCaminos[x][y + 1];      
+                        xAux = x;
+                        yAux = y + 1;              
+                    }
+                break;
+                case 3://IZQUIERDA
+                    if(x > 0 && x < 9 && this.arrayCaminos[x - 1][y] != undefined ){
+                        auxCamino = this.arrayCaminos[x - 1][y];
+                        xAux = x - 1;
+                        yAux = y;
+                    }
 
-        if(_elem.texture.key = "camino"){
-            let dirPlayer = this.player.getDir();
-            let auxCamino;
-            let xAux;
-            let yAux;
-            if(!this.revisandoLap &&  (x >= 0 && x <= 9) && ( y >= 0 && y <= 8)){
-                this.revisandoLap = true;
-                
-                switch (dirPlayer) {
-                    case 0: //ARRIBA
-                        if(y > 0  && y < 8 && this.arrayCaminos[x][y - 1] != undefined){
-                            auxCamino = this.arrayCaminos[x][y - 1];
-                            xAux = x;
-                            yAux = y - 1;
-                        }
-                    break;
-                    case 1://DERECHA
-                        if(x > 0 && x < 8 && this.arrayCaminos[x + 1][y] != undefined){
-                            auxCamino = this.arrayCaminos[x + 1][y];
-                            xAux = x + 1;
-                            yAux = y;
-                        }
-                        
-                    break;
-                    case 2://ABAJO
-                        if(y > 0  && y < 8 && this.arrayCaminos[x][y + 1] != undefined ){
-                            auxCamino = this.arrayCaminos[x][y + 1];      
-                            xAux = x;
-                            yAux = y + 1;              
-                        }
-                    break;
-                    case 3://IZQUIERDA
-                        if(x > 0 && x < 8 && this.arrayCaminos[x - 1][y] != undefined ){
-                            auxCamino = this.arrayCaminos[x - 1][y];
-                            xAux = x - 1;
-                            yAux = y;
-                        }
-
-                    break;    
-                
-                    default:
-                    break;  
-                }
-
-
-                if( auxCamino != undefined && auxCamino.hasOwnProperty("estado")){
+                break;    
+            
+                default:
+                break;  
+            }
+            //auxCamino.hasOwnProperty("estado")
+            //Los únicos objectos que son selecionables son los que tienen la textura de camino
+            if(auxCamino != undefined){
+                if(auxCamino != undefined && auxCamino.hasOwnProperty("estado") /*auxCamino.texture.key == "camino"*/){
                     this.caminoElegido = auxCamino;
                     this.elegidoX = xAux;
                     this.elegidoY = yAux;
                     this.caminoElegido.cambiaEstado(true);
                 }
-                
-                this.revisandoLap = false;
             }
+            this.revisandoLap = false;
         }
-        
-
-
-
-
+    
     }
 
-    esSeleccionable(_elem){
-        if(_elem.hasOwnProperty("final") || _elem.hasOwnProperty("inicio")){
-            return false;
-        }
-        else return true;
-    }
 
     colisionContraMeta(){
         this.temaFondo.stop();
