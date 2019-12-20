@@ -84,11 +84,11 @@ export default class Creative extends Phaser.Scene {
     }
 
     preload() { 
-        //this.scene.restart("Creative");
         console.log("Escena creativa cargada");
     }
 
     create() { 
+
         //inicialización de grupos
         this.baseGroup      = this.add.group();
         this.caminosGroup   = this.add.group();
@@ -127,27 +127,14 @@ export default class Creative extends Phaser.Scene {
         this.temaFondo = this.sound.add('creativaTema');
         this.temaFondo.play(config);
 
-        
-        /*this.caminosGroup.children.iterate(item => {
-            item.on('pointerdown',function(pointer){
-                console.log("GG");
-                if(this.puedoPonerBloque){
-                    console.
-                    this.murosGroup.add(new Wall(this, pointer.x,pointer.y));
-                    //let actMuro = new Wall(this, pointer.x,pointer.y);
-                    //this.tableroGroup.add(actMuro);
-                }
-            });
-        })*/
-
     }
 
     update(time,delta){ 
         this.menuHerramientas.getAt(1).setText(('Muros: ' + this.numMuros));
         this.menuHerramientas.getAt(2).setText(('Trampas: ' + this.numTrampas));
         if(this.metaPuesta){
-            this.menuHerramientas.getAt(7).setText('Time: ' + 
-            (this.timedEvent.getProgress() * this.tiempoParaCambio / 1000).toString().substr(0,3));
+            this.menuHerramientas.getAt(7).setText('Time: ' + Math.floor(
+            (this.timedEvent.getProgress() * this.tiempoParaCambio / 1000)));
         }
     }
 
@@ -202,7 +189,9 @@ export default class Creative extends Phaser.Scene {
     tiempoFuera(){
         console.log("TIEMPO FUERA!");
         this.temaFondo.stop();
-        this.scene.switch('Challenger');
+        //Se necesita esta escena para mandar los datos a la escena desafio, por eso no la elimino
+        this.scene.add('Challenger', Challenger,true);
+        this.scene.setVisible(false,"Creative" ); 
     }
 
     //Crea los elementos del menú y los ingresa a un container
@@ -346,8 +335,8 @@ export default class Creative extends Phaser.Scene {
                 this.aplicaAnim(actCamino);
                 this.caminosGroup.add(actCamino); 
                 this.tableroGroup[x][y] = actCamino;
-                let tx = this.add.text(actCamino.getX() - 30,actCamino.getY() - 30);
-                tx.setText(actCamino.getX() + "/" + actCamino.getY() + "\n" + actCamino.getIndX() + "/" +actCamino.getIndY() + "\n" + this.caminosGroup.getLength());
+                //let tx = this.add.text(actCamino.getX() - 30,actCamino.getY() - 30);
+                //tx.setText(actCamino.getX() + "/" + actCamino.getY() + "\n" + actCamino.getIndX() + "/" +actCamino.getIndY() + "\n" + this.caminosGroup.getLength());
                 actCamino.on('pointerdown',() => this.creaInteractuable(actCamino)); 
                 this.numCaminos--;
             }
@@ -359,8 +348,8 @@ export default class Creative extends Phaser.Scene {
     creaMuro(currCamino){
         let currMuro = new Wall (this,currCamino.getX(),currCamino.getY(),currCamino.getIndX(),currCamino.getIndY(),5);
         currMuro.visible = false;
-        let tx = this.add.text(currMuro.getX() - 30,currMuro.getY() - 30);
-        tx.setText(currMuro.getX() + "/" + currMuro.getY() + "\n" + currMuro.getIndX() + "/" +currMuro.getIndY() + "\n" + "?");
+        //let tx = this.add.text(currMuro.getX() - 30,currMuro.getY() - 30);
+        //tx.setText(currMuro.getX() + "/" + currMuro.getY() + "\n" + currMuro.getIndX() + "/" +currMuro.getIndY() + "\n" + "?");
         currMuro.on('pointerdown',() => this.quitarMuroPonerCamino(currMuro)); 
         this.murosGroup.add(currMuro);
         this.tableroGroup[currMuro.getIndX()][currMuro.getIndY()] = currMuro;
@@ -407,8 +396,8 @@ export default class Creative extends Phaser.Scene {
     //Crea una trampa en la posición de un camino determinado
     creaTrampa(currCamino){
         let currTrampa = new Trap(this,currCamino.getX(),currCamino.getY(),currCamino.getIndX(),currCamino.getIndY(),5);
-        let tx = this.add.text(currTrampa.getX() - 30,currTrampa.getY() - 30);
-        tx.setText(currTrampa.getX() + "/" + currTrampa.getY() + "\n" + currTrampa.getIndX() + "/" +currTrampa.getIndY() + "\n" + "?");
+        //let tx = this.add.text(currTrampa.getX() - 30,currTrampa.getY() - 30);
+        //tx.setText(currTrampa.getX() + "/" + currTrampa.getY() + "\n" + currTrampa.getIndX() + "/" +currTrampa.getIndY() + "\n" + "?");
         currTrampa.on('pointerdown',() => this.quitaTrampaPoneCamino(currTrampa)); 
         let audio = this.sound.add('trampaAudio');
         audio.play();
@@ -615,6 +604,4 @@ export default class Creative extends Phaser.Scene {
         return valido;
 
     }
-
-
 }

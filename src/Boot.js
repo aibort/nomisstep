@@ -1,11 +1,14 @@
+import preBoot from "./scenes/preBoot.js";
+
 export default class Boot extends Phaser.Scene{
     constructor(){
         super({key:'boot'});
+
     }
     preload(){
+        this.scene.sendToBack("boot");
         console.log("escena Boot");
-        //Cargar imagenes del juego //loading
-        this.load.image('loading','./assets/Imagenes/loading.png');
+        //Cargar imagenes del juego 
         this.load.image('inicio','./assets/Imagenes/inicio.png');
         this.load.image('meta','./assets/Imagenes/meta.png');
         this.load.image('muro','./assets/Imagenes/muro.png');
@@ -14,6 +17,9 @@ export default class Boot extends Phaser.Scene{
         this.load.image('bloqueBase', './assets/Imagenes/baseBlock.png');
         this.load.image('trap', './assets/Imagenes/trap.png');
         this.load.image('penalizado', './assets/Botones/penalizado.png');
+        this.load.image('gitAmaro','./assets/Imagenes/gitAmaro.png');
+        this.load.image('twAmaro','./assets/Imagenes/twAmaro.png');
+
 
         //Fondo de escenas / menus
         this.load.image('baseMenu', './assets/Imagenes/fondoMenu.png');
@@ -33,9 +39,6 @@ export default class Boot extends Phaser.Scene{
         this.load.image('amaroBoton',   './assets/Botones/amaroBoton.png');
         this.load.image('albertoBoton', './assets/Botones/albertoBoton.png');
 
-
-
-
         //Cargar animaciones
         this.load.spritesheet('caminoAnim',     './assets/Imagenes/bloqueSpriteSheet.png',  { frameWidth: 70, frameHeight:70 } );
         this.load.spritesheet('jugadorParado',  './assets/Imagenes/jugadorParado.png',      { frameWidth: 70, frameHeight:70 } );
@@ -46,12 +49,9 @@ export default class Boot extends Phaser.Scene{
 
         //Cargar sonidos
         this.load.audio('trampaAudio','./assets/Audios/trampaSonido.mp3' );
-        this.load.audio('creativaTema','./assets/Audios/audioCreativa.mp3' );
         this.load.audio('menuTema','./assets/Audios/audioMenu.mp3' );
+        this.load.audio('creativaTema','./assets/Audios/audioCreativa.mp3' );
         this.load.audio('audioDesafio','./assets/Audios/audioDesafio.mp3' );
-
-
-
 
 
     }

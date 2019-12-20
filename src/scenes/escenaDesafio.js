@@ -1,13 +1,13 @@
-import Player from      "../gameObjects/player.js";
-import Trap from        "../gameObjects/trap.js";
-import Road from        "../gameObjects/road.js";
-import Goal from "../gameObjects/goal.js";
-import Spawn from "../gameObjects/casillaInicio.js";
-import Wall from "../gameObjects/wall.js";
-import BaseBlock from "../gameObjects/baseBlock.js";
+import Player       from    "../gameObjects/player.js";
+import Trap         from    "../gameObjects/trap.js";
+import Road         from    "../gameObjects/road.js";
+import Goal         from    "../gameObjects/goal.js";
+import Spawn        from    "../gameObjects/casillaInicio.js";
+import Wall         from    "../gameObjects/wall.js";
+import BaseBlock    from    "../gameObjects/baseBlock.js";
+import HUD          from    "../scenes/HUD.js";
+import Lobby        from    "./escenaFinal.js";
 
-const TXT_INI_POS_X = 1000;
-const TXT_INI_POS_Y = 200;
 
 export default class Challenger extends Phaser.Scene{
     constructor(){
@@ -23,16 +23,18 @@ export default class Challenger extends Phaser.Scene{
         this.bases;
         this.caminos;
         this.playerBloqueado = false;
-        //this.cursors;
+        //Sonidos
+            this.trampaAlerta;
+
         //Array para comprobar los caminos
-        this.arrayCaminos = Array;
-        //Variables para determinar a que casilla está apuntando el jugador
-        this.caminoElegido;
-        this.elegidoX;
-        this.elegidoY;
+            this.arrayCaminos = Array;
+        //Variables para determinar a qué casilla está apuntando el jugador
+            this.caminoElegido;
+            this.elegidoX;
+            this.elegidoY;
 
         //Para no revisar más de un overlap
-        this.revisandoLap = false;
+            this.revisandoLap = false;
 
         //Tiempo a penalizar 
             this.tiempoBloqueado;
@@ -49,7 +51,6 @@ export default class Challenger extends Phaser.Scene{
 
     preload(){
         //cargar cancion
-
     }
 
     create(){
@@ -73,7 +74,7 @@ export default class Challenger extends Phaser.Scene{
         this.tablero = escenaCreativa.getTablero();
         this.bases = escenaCreativa.getBase();
         this.desactivadores =  escenaCreativa.getNumTrampas();
-        
+        this.trampaAlerta = this.sound.add('trampaAudio');
 
         
         //Creación del player en la posición del spawn
@@ -121,12 +122,19 @@ export default class Challenger extends Phaser.Scene{
                     new Trap(this, this.tablero[x][y].getX() ,this.tablero[x][y].getY(), this.tablero[x][y].getIndX(), 
                     this.tablero[x][y].getIndY(),contador).setTexture("camino");
                     contador++;
+
                     //Gestión de collision contra una trampa
-                    //let zone = this.arrayCaminos[x][y].zone.add(this,this.arrayCaminos[x][y].x,this.arrayCaminos[x][y].y,140,140);
                     let trampaColision = this.physics.add.collider(this.player,this.arrayCaminos[x][y],
                         ()=> this.colisionContraTrampa(this.arrayCaminos[x][y]));
                     this.physics.add.overlap(this.player,this.arrayCaminos[x][y],()=> this.overlapCamino(x,y,this.arrayCaminos[x][y]));
                     this.arrayCaminos[x][y].agregaColision(trampaColision);
+
+                    //Gestión de colisión contra una zona para reproducir un sonido
+                    let zona = this.add.zone(this.tablero[x][y].getX(), this.tablero[x][y].getY()).setSize(200, 200);
+                    this.physics.world.enable(zona);
+                    zona.body.debugBodyColor = 0x000EFF;
+                    this.physics.add.overlap(zona,this.player,() => this.reproduceTrampa(zona));
+    
                 }
                 //Creación de los muros
                 else if(this.tablero[x][y].texture.key == "muro"){
@@ -165,20 +173,23 @@ export default class Challenger extends Phaser.Scene{
         this.player.depth = 1;
 
         //Cámara
-        //this.cameras.main.startFollow(this.player);
-        //this.cameras.main.setZoom(4);
+        this.cameras.main.startFollow(this.player);
+        this.cameras.main.setZoom(4);
         //imagen que se ve al tocar una trampa
         this.penalizadoImagen = this.add.sprite(700,400,"penalizado").setVisible(false);
         this,this.penalizadoImagen.depth = 2;
 
-        this.scene.launch('HUD');
-
+        //Inicialización del HUD 
+        this.scene.add("HUD",HUD,true);
     }
 
     update(time,delta){
+        //console.log('Time: ' + time + '\nDelta: ' + delta);
     }
 
     //Cuando el jugador activa el salva trampas
+    //*Caso de ser un camino, aplica efectos y quita un desactivador
+    //*Caso de ser una trampa, desactiva la trampa y aplica lo anterior
     salvaTrampa(){
         if(this.desactivadores > 0  && this.caminoElegido.hasOwnProperty("revisado") 
         && !this.caminoElegido.haSidoDesactivado()){
@@ -202,6 +213,10 @@ export default class Challenger extends Phaser.Scene{
         }
     }
 
+    reproduceTrampa(_zona){
+        _zona.destroy();
+        this.trampaAlerta.play();
+    }
 
     colisionContraMuro(){
         console.log("Contra muro");
@@ -211,6 +226,8 @@ export default class Challenger extends Phaser.Scene{
         return this.desactivadores;
     }
 
+    //Cuando el jugador colisiona contra una trampa
+    //*Manda la hud a renderizar el tiempo de penalización
     shakeScene(){
         this.events.emit('activaTimer');
         this.tweens.add({
@@ -223,20 +240,25 @@ export default class Challenger extends Phaser.Scene{
 
     }
 
+    //Devuelve el tiempo que tiene de penalización
     getTiempoPenalizado(){
         return this.player.tiempoParaEsperar();
     }
 
+    //Devuelve el spawn
     getInicio(){
         return this.spawn;
     }
 
+    //Manda al HUD a dejar de renderizar el tiempo de penalización
     quitaBloqueo(){
         this.events.emit('desactivaTimer');
         this.penalizadoImagen.setVisible(false);
         this.penalizadoImagen.setScale(-10);
     }
 
+    //Cuando el jugador colisiona contra una trampa
+    //*Desactiva la trampa, cambia la textura y manda al jugador a la linea de meta
     colisionContraTrampa(_trampa){  
         if(_trampa.estaActiva()){
             _trampa.desactivador();
@@ -254,7 +276,7 @@ export default class Challenger extends Phaser.Scene{
         return this.caminoElegido;
     }
 
-    //Para determinar a que casilla está apuntando el jugador
+    //Para determinar a qué casilla está apuntando el jugador
     overlapCamino(x,y,_elem){
         let dirPlayer = this.player.getDir();
         let auxCamino;
@@ -312,11 +334,15 @@ export default class Challenger extends Phaser.Scene{
     
     }
 
-
+    //Cuando el jugador llega a la meta
     colisionContraMeta(){
         this.temaFondo.stop();
         console.log("Cambio de escena");
-        this.scene.switch('MenuGame');
+        this.scene.switch('Lobby');
+        this.scene.remove("Creative");
+        this.scene.remove("Challenger");
+        this.scene.remove("HUD");
+        //Cargar la escena final
     }
 }
 

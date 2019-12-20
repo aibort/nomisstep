@@ -1,13 +1,14 @@
+import Creative from '../scenes/escenaCreativa.js'
 
 export default class Menu extends Phaser.Scene{
     constructor(){
         super({key:'MenuGame'}); 
+      //Melodia de fondo
+        this.temaFondo ;  
+      }
 
-        this.tweenMoving = false;
-        this.temaFondo ;
-    }
-
-    create(){
+      create(){
+      this.scene.setVisible(true,"MenuGame");
         console.log("Escena menú");
         let config = ({
           mute: false,
@@ -54,7 +55,9 @@ export default class Menu extends Phaser.Scene{
 
         let amaro_boton = this.add.sprite(1100,0,'amaroBoton').setInteractive().setScale(0.2);
         amaro_boton.on('pointerover',() => this.aplicaEfectoFotos(amaro_boton));
-        //amaro_boton.on('pointerout',() => this.aplicaEfectoFotos(amaro_boton));//Poner creditos
+        amaro_boton.on('pointerdown',() => this.abreAmaroCreaditos());
+
+        
         this.tweens.add({
           targets: amaro_boton,
           y: '+=700', 
@@ -64,7 +67,6 @@ export default class Menu extends Phaser.Scene{
 
         let alberto_boton = this.add.sprite(300,0,'albertoBoton').setInteractive().setScale(0.2,0.121);;
         alberto_boton.on('pointerover',() => this.aplicaEfectoFotos(alberto_boton));
-        //amaro_boton.on('pointerout',() => this.aplicaEfectoFotos(amaro_boton));
         this.tweens.add({
           targets: alberto_boton,
           y: '+=700', 
@@ -73,7 +75,9 @@ export default class Menu extends Phaser.Scene{
         });
       }
 
+    //Devuelve a unos valores predestinados los botones
     paraTween(_target){
+      _target.setInteractive(false);
       this.temaFondo.setVolume(1);
       _target.setTint(0xFFFFFF);
       this.tweens.add({
@@ -82,39 +86,80 @@ export default class Menu extends Phaser.Scene{
         duration: 500,
         yoyo: true,
         repeatDelay: 200,
+        onComplete: function(){
+          _target.setScale(1);
+          _target.setInteractive(true);
+        }
       });
     }
 
-
+    //Cuando el jugador da click sobre el boton play
     cargaEscenaCreativa(){
-      this.scene.start('Creative');
-      
+      this.scene.add('Creative',Creative,true);
+      this.scene.setVisible(false,"MenuGame");
       this.temaFondo.stop();
     }
 
+    //Aplica efectos sobre los botones
     aplicaTween(_target){
+      _target.setInteractive(false);
       this.temaFondo.setVolume(0.5);
       _target.setTint(0x696969);
+
       this.tweens.add({
         targets: _target,
         scale: 1,
         duration: 500,
         yoyo: true,
         repeatDelay: 200,
+        onComplete: function(){
+          _target.setInteractive(true);
+        }
+
+        
       });
     }
 
+    //Efecto sobre las imagenes de los colaboradores
     aplicaEfectoFotos(_foto){
       this.tweens.add({
         targets: _foto,
         angle: '+=360', 
         duration: 1000,
+        onComplete: function(){
+                        _foto.setAngle(0);
+                    }
       });
     }
 
-    abreCreditos(_sujeto){
-      
+    //Abre los creditos
+    abreAmaroCreaditos(){
+      let gitIMG = this.add.sprite(1150,570,"gitAmaro").setScale(0.1);
+      gitIMG.setInteractive();
+      gitIMG.on('pointerdown',function(){ 
+        window.open("https://github.com/Sounagix");
+      });
+      this.tweens.add({
+        targets: gitIMG,
+        scale: '+=0.05', 
+        duration: 1000,
+        repeat: -1
+      });
+
+      let twiterIMG = this.add.sprite(1050,570,"twAmaro").setScale(0.17);
+      twiterIMG.setInteractive();
+      twiterIMG.on('pointerdown',function(){ 
+        window.open("https://twitter.com/AmaroBlestPolo");
+      });
+      this.tweens.add({
+        targets: twiterIMG,
+        scale: '+=0.05', 
+        duration: 1000,
+        repeat: -1
+      });
+
     }
+
 
 
   }
