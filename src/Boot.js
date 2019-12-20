@@ -26,7 +26,7 @@ export default class Boot extends Phaser.Scene{
         this.load.image('imagenInfo', './assets/Imagenes/tablaInformacion.png');
         this.load.image('menuBG', './assets/Imagenes/fondoStart.png');
         this.load.image('creativaBG', './assets/Imagenes/background.png');
-
+        this.load.image('ctrls', './assets/Imagenes/Controls.png');
 
         //Cargar imagenes de botones
         this.load.image('agregaBloque','./assets/Botones/agregaBloque.png');
@@ -38,7 +38,7 @@ export default class Boot extends Phaser.Scene{
         this.load.image('botonControles','./assets/Botones/BotonControles.png');
         this.load.image('amaroBoton',   './assets/Botones/amaroBoton.png');
         this.load.image('albertoBoton', './assets/Botones/albertoBoton.png');
-
+        this.load.image('botonMenu', './assets/Botones/menu.png');
         //Cargar animaciones
         this.load.spritesheet('caminoAnim',     './assets/Imagenes/bloqueSpriteSheet.png',  { frameWidth: 70, frameHeight:70 } );
         this.load.spritesheet('jugadorParado',  './assets/Imagenes/jugadorParado.png',      { frameWidth: 70, frameHeight:70 } );
