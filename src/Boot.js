@@ -52,6 +52,26 @@ export default class Boot extends Phaser.Scene{
         this.load.audio('menuTema','./assets/Audios/audioMenu.mp3' );
         this.load.audio('creativaTema','./assets/Audios/audioCreativa.mp3' );
         this.load.audio('audioDesafio','./assets/Audios/audioDesafio.mp3' );
+        this.load.audio('desactivar','./assets/Audios/desactivar.wav' );
+        this.load.audio('cuenta','./assets/Audios/cuenta.mp3' );
+        this.load.audio('quitar','./assets/Audios/quitar.wav' );
+        this.load.audio('tocaTrampa','./assets/Audios/tocaTrampa.wav');
+        this.load.audio('click','./assets/Audios/click.wav' );
+        this.load.audio('ponerMuro','./assets/Audios/ponerMuro.wav' );
+        this.load.audio('error','./assets/Audios/error.mp3' );
+
+
+        //cargar numeros
+        this.load.image('0', './assets/Imagenes/0.png');
+        this.load.image('1', './assets/Imagenes/1.png');
+        this.load.image('2', './assets/Imagenes/2.png');
+        this.load.image('3', './assets/Imagenes/3.png');
+        this.load.image('4', './assets/Imagenes/4.png');
+        this.load.image('5', './assets/Imagenes/5.png');
+        this.load.image('6', './assets/Imagenes/6.png');
+        this.load.image('7', './assets/Imagenes/7.png');
+        this.load.image('8', './assets/Imagenes/8.png');
+        this.load.image('9', './assets/Imagenes/9.png');
 
 
     }

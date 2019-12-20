@@ -1,10 +1,12 @@
 import Creative from '../scenes/escenaCreativa.js'
+import Lobby from './escenaFinal.js';
 
 export default class Menu extends Phaser.Scene{
     constructor(){
         super({key:'MenuGame'}); 
       //Melodia de fondo
         this.temaFondo ;  
+        this.click;
       }
 
       create(){
@@ -21,7 +23,9 @@ export default class Menu extends Phaser.Scene{
         })
         this.temaFondo = this.sound.add('menuTema');
         this.temaFondo.play(config);
-        let fondo = this.add.sprite(700,400,'menuBG').setScale(1.5);
+        this.click = this.sound.add("click");
+        this.add.sprite(700,400,'menuBG').setScale(1.5);
+
         let boton_creativo = this.add.sprite(700,0,'botonCreativa').setInteractive().setScale(0.5);
         boton_creativo.on('pointerdown',() => this.cargaEscenaCreativa());
         boton_creativo.on('pointerover',() => this.aplicaTween(boton_creativo));
@@ -95,6 +99,8 @@ export default class Menu extends Phaser.Scene{
 
     //Cuando el jugador da click sobre el boton play
     cargaEscenaCreativa(){
+      this.click.play();
+      this.scene.add('Lobby',Lobby,false);
       this.scene.add('Creative',Creative,true);
       this.scene.setVisible(false,"MenuGame");
       this.temaFondo.stop();
@@ -134,6 +140,7 @@ export default class Menu extends Phaser.Scene{
 
     //Abre los creditos
     abreAmaroCreaditos(){
+      this.click.play();
       let gitIMG = this.add.sprite(1150,570,"gitAmaro").setScale(0.1);
       gitIMG.setInteractive();
       gitIMG.on('pointerdown',function(){ 

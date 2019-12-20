@@ -17,12 +17,6 @@ const CAMINO_SIZE_X = 70;
 const CAMINO_SIZE_Y = 70; 
 //globales para los muros
 const NUM_MUROS_TOTAL = NUM_CAMINOS_X * NUM_CAMINOS_Y;
-const NUM_MUROS_X = NUM_CAMINOS_X + 2;
-const NUM_MUROS_Y = NUM_CAMINOS_Y + 2;
-const POS_MURO_X = 420;
-const POS_MURO_Y = 140;
-const MURO_SIZE_X = 70;
-const MURO_SIZE_Y = 70;
 //Globales para crear la base
 const NUM_BASE_X = NUM_CAMINOS_X + 2;
 const NUM_BASE_Y = NUM_CAMINOS_Y + 2;
@@ -30,10 +24,7 @@ const BASE_SIZE_X = 70;
 const BASE_SIZE_Y = 70;
 const POS_BASE_X = POS_CAMINO_X - BASE_SIZE_X;
 const POS_BASE_Y = POS_CAMINO_Y - BASE_SIZE_Y;
-const POS_DOWN_X = (NUM_CAMINOS_X * BASE_SIZE_X ) + POS_BASE_X + BASE_SIZE_X;
-const POS_DOWN_Y = (NUM_CAMINOS_Y * BASE_SIZE_Y ) + POS_BASE_Y + BASE_SIZE_Y;
-//time
-const START_TIME = 5000;
+
 //Globales para renderizar el menu de herramientas
 const SUB_MENU_X = 1000;
 const SUB_MEU_Y = 200;
@@ -75,12 +66,17 @@ export default class Creative extends Phaser.Scene {
 
         //Variables para agregar sonidos
         this.temaFondo;
+        this.muroSonido;
+        this.trampaAudio;
+        this.error;
 
+        //fondo de pantalla
         this.bg;
 
         //Variable que controla el tiempo
         this.timedEvent;
-        this.tiempoParaCambio = 10000;
+        this.tiempoParaCambio = 60000;
+        this.cuentaProgre;
     }
 
     preload() { 
@@ -126,12 +122,17 @@ export default class Creative extends Phaser.Scene {
           })
         this.temaFondo = this.sound.add('creativaTema');
         this.temaFondo.play(config);
+        this.quitarElem = this.sound.add("quitar");
+        this.muroSonido = this.sound.add("ponerMuro");
+        this.trampaAudio = this.sound.add('trampaAudio');
+        this.click = this.sound.add("click");
+        this.error = this.sound.add("error")
 
     }
 
-    update(time,delta){ 
-        this.menuHerramientas.getAt(1).setText(('Muros: ' + this.numMuros));
-        this.menuHerramientas.getAt(2).setText(('Trampas: ' + this.numTrampas));
+    update(){ 
+        this.menuHerramientas.getAt(1).setText(('WALLS: ' + this.numMuros));
+        this.menuHerramientas.getAt(2).setText(('TRAPS: ' + this.numTrampas));
         if(this.metaPuesta){
             this.menuHerramientas.getAt(7).setText('Time: ' + Math.floor(
             (this.timedEvent.getProgress() * this.tiempoParaCambio / 1000)));
@@ -252,7 +253,7 @@ export default class Creative extends Phaser.Scene {
             this.puedoPonerTrampa = false;
             this.puedoBorrarTrampa = false;
             this.puedoQuitarMuro = false;
-            console.log("PuedoPonerMuro");
+            this.click.play();
         }
 
     }
@@ -267,7 +268,8 @@ export default class Creative extends Phaser.Scene {
             boton_quitaTrampa.setTint(0xFFFFFF);
             boton_agregarMuro.setTint(0xFFFFFF);
             boton_agregaTrampa.setTint(0xFFFFFF);
-            console.log("PuedoQuitarMuro");
+            this.click.play();
+
         }
     }
 
@@ -281,7 +283,8 @@ export default class Creative extends Phaser.Scene {
             boton_quitaTrampa.setTint(0x68064D);
             boton_agregarMuro.setTint(0xFFFFFF);
             boton_agregaTrampa.setTint(0xFFFFFF);
-            console.log("PuedoQuitarTrampa");
+            this.click.play();
+
         }
     }
 
@@ -292,11 +295,12 @@ export default class Creative extends Phaser.Scene {
             boton_agregarMuro.setTint(0xFFFFFF);
             boton_quitaMuro.setTint(0xFFFFFF);
             boton_quitaTrampa.setTint(0xFFFFFF);
-            this.puedoPonerMuro = false;//430505
+            this.puedoPonerMuro = false;
             this.puedoPonerTrampa = true;
             this.puedoBorrarTrampa = false;
             this.puedoQuitarMuro = false;
-            console.log("PuedoPonerTrampa");
+            this.click.play();
+
         }
     }     
 
@@ -309,16 +313,13 @@ export default class Creative extends Phaser.Scene {
                 for(let j = 0 ; j < NUM_BASE_X ; j++){
                     let actBase = new BaseBlock(this,POS_BASE_X + BASE_SIZE_X * j,POS_BASE_Y + BASE_SIZE_Y * contador);
                     this.baseGroup.add(actBase);
-                    //this.tableroGroup[i][j] = actBase;
                 }
                 contador++;
             }
             else {
                 let baseDer = new BaseBlock(this, POS_BASE_X , POS_BASE_Y + BASE_SIZE_Y * contador);
                 this.baseGroup.add(baseDer);
-                //this.tableroGroup[i][contador] = baseDer;
                 let baseIzq = new BaseBlock(this,POS_BASE_X + BASE_SIZE_X * (NUM_BASE_X - 1) ,POS_BASE_Y + BASE_SIZE_Y * contador);
-                //this.tableroGroup[NUM_BASE_X - 1][contador] = baseIzq;
                 this.baseGroup.add(baseIzq);
                 contador++;
 
@@ -346,6 +347,7 @@ export default class Creative extends Phaser.Scene {
 
     //Crea un muro
     creaMuro(currCamino){
+        this.muroSonido.play();
         let currMuro = new Wall (this,currCamino.getX(),currCamino.getY(),currCamino.getIndX(),currCamino.getIndY(),5);
         currMuro.visible = false;
         //let tx = this.add.text(currMuro.getX() - 30,currMuro.getY() - 30);
@@ -369,6 +371,7 @@ export default class Creative extends Phaser.Scene {
 
     quitarMuroPonerCamino(currMuro){
         if(this.puedoQuitarMuro){
+            this.quitarElem.play();
             this.numMuros++;
             this.tableroGroup[currMuro.getIndX()][currMuro.getIndY()]= this.creaCamino(currMuro);
             currMuro.destroy();
@@ -378,6 +381,7 @@ export default class Creative extends Phaser.Scene {
 
     quitaTrampaPoneCamino(currTrampa){
         if(this.puedoBorrarTrampa){
+            this.quitarElem.play();
             this.numTrampas++;
             this.creaCamino(currTrampa);
             currTrampa.destroy();
@@ -399,8 +403,7 @@ export default class Creative extends Phaser.Scene {
         //let tx = this.add.text(currTrampa.getX() - 30,currTrampa.getY() - 30);
         //tx.setText(currTrampa.getX() + "/" + currTrampa.getY() + "\n" + currTrampa.getIndX() + "/" +currTrampa.getIndY() + "\n" + "?");
         currTrampa.on('pointerdown',() => this.quitaTrampaPoneCamino(currTrampa)); 
-        let audio = this.sound.add('trampaAudio');
-        audio.play();
+        this.trampaAudio.play(); 
         this.trapGroup.add(currTrampa);
         this.tableroGroup[currCamino.getIndX()][currCamino.getIndY()] = currTrampa;
         this.numTrampas--;
@@ -423,6 +426,7 @@ export default class Creative extends Phaser.Scene {
                 currMuro.visible = true;
             }
             else{
+                this.error.play();
                 this.tableroGroup[currMuro.getIndX()][currMuro.getIndY()] = this.creaCamino(currCamino);
                 this.tableroGroup[currMuro.getIndX()][currMuro.getIndY()].setTint(0xFF0000);
                 this.tweens.add({
@@ -443,7 +447,7 @@ export default class Creative extends Phaser.Scene {
                 }
             }
         }
-        else if(this.puedoPonerTrampa && this.numTrampas > 0){
+        else if(this.puedoPonerTrampa && this.numTrampas > 0 && !this.estaColindandoSpawn(currCamino)){
             this.creaTrampa(currCamino);
         }
         else if(!this.spawnPuesto && this.dentroLimites(currCamino)){
@@ -452,7 +456,7 @@ export default class Creative extends Phaser.Scene {
             this.tableroGroup[currCamino.getIndX()][currCamino.getIndY()] = this.spawn;
             this.tweens.add({
                 targets: this.spawn,
-                angle: 15,
+                scale: "+=1",
                 duration: 100,
                 repeat: 10,
                 yoyo: true,
@@ -469,7 +473,7 @@ export default class Creative extends Phaser.Scene {
             this.tableroGroup [currCamino.getIndX()][currCamino.getIndY()] = this.meta;
             this.tweens.add({
                 targets: this.meta,
-                angle: 15,
+                scale: "+=1",
                 duration: 100,
                 repeat: 10,
                 yoyo: true,
@@ -477,7 +481,10 @@ export default class Creative extends Phaser.Scene {
             });
             currCamino.destroy();
             //Agrega evento de cambio de escena y empieza a correr el tiempo
+   
             this.timedEvent = this.time.delayedCall(this.tiempoParaCambio, this.tiempoFuera, [], this);
+            this.cuentaProgre = this.time.delayedCall(this.tiempoParaCambio - 10000, this.reproduceCuenta, [], this);
+
             this.menuHerramientas.getAt(9).setText('Create the stage '+ "\n" + "before time runs out.");
 
         this.caminosGroup.children.each(function(camino) {
@@ -494,6 +501,45 @@ export default class Creative extends Phaser.Scene {
         });
 
         }
+    }
+    //coprueba si el jugador quiere colocar una trampa las salidas del spawn
+    estaColindandoSpawn(_elem){
+        let x = _elem.getX();
+        let y = _elem.getY();
+        let imposible = false;
+
+        if(x == this.spawn.getX() && y == this.spawn.getY() + 70){
+            imposible =  true;
+        }
+        else if (x == this.spawn.getX() + 70 && y == this.spawn.getY()){
+            imposible =  true;
+
+        }
+        else if (x == this.spawn.getX() - 70 && y == this.spawn.getY()){
+            imposible =  true;
+
+        }
+        else if (x == this.spawn.getX() && y == this.spawn.getY() - 70){
+            imposible =  true;
+
+        }
+        else{
+            imposible =  false;
+        }
+
+        if(imposible){
+            this.error.play();
+        }
+
+        return imposible;
+
+        
+    }
+
+    reproduceCuenta(){
+        let cuentaAtras = this.sound.add("cuenta");
+        cuentaAtras.play();  
+        console.log("10s");     
     }
 
     //Crea la animación de toque
@@ -518,18 +564,6 @@ export default class Creative extends Phaser.Scene {
             frameRate: 10
         });
 
-        //Agrega el comportamiento solo a los elementos del camino
-        /*this.caminosGroup.children.each(function(camino) {
-
-            camino.on('pointermove',  function() { 
-            camino.setTint(0x696969);
-            camino.anims.play('tocando');
-            });
-            camino.on('pointerout', function() { 
-            camino.anims.play('estatico');
-            camino.setTint(0xFFFFFF);
-            });
-        });*/
     }
          
     //Agrega el comportamiento a un elemento en función del juego

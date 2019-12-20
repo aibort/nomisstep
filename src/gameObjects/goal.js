@@ -7,13 +7,13 @@ export default class Goal extends Block{
         this.scene.physics.add.existing(this);   
     }
 
-    getX(){
+    /*getX(){
         return this.x;
     }
 
     getY(){
         return this.y;
-    }
+    }*/
 
 
     

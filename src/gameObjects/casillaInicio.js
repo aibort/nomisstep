@@ -6,11 +6,11 @@ export default class Spawn extends Block{
         this.inicio = true;
     }
 
-    getX(){
+    /*getX(){
         return this.x;
     }
 
     getY(){
         return this.y;
-    }
+    }*/
 }

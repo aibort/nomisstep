@@ -6,7 +6,6 @@ import Spawn        from    "../gameObjects/casillaInicio.js";
 import Wall         from    "../gameObjects/wall.js";
 import BaseBlock    from    "../gameObjects/baseBlock.js";
 import HUD          from    "../scenes/HUD.js";
-import Lobby        from    "./escenaFinal.js";
 
 
 export default class Challenger extends Phaser.Scene{
@@ -23,9 +22,12 @@ export default class Challenger extends Phaser.Scene{
         this.bases;
         this.caminos;
         this.playerBloqueado = false;
+
         //Sonidos
             this.trampaAlerta;
-
+            this.cuentaAtras;
+            this.trampaActivada;
+            this.desactivaSonido;
         //Array para comprobar los caminos
             this.arrayCaminos = Array;
         //Variables para determinar a qué casilla está apuntando el jugador
@@ -49,10 +51,6 @@ export default class Challenger extends Phaser.Scene{
 
     }
 
-    preload(){
-        //cargar cancion
-    }
-
     create(){
     
         console.log("Creada");
@@ -65,12 +63,16 @@ export default class Challenger extends Phaser.Scene{
             loop: true,  
             delay: 0,
             start : 2
-          })
+        })
+        
+        //cargar sonidos
         this.temaFondo = this.sound.add('audioDesafio');
         this.temaFondo.play(config);
+        this.cuentaAtras = this.sound.add("cuenta");
+        this.trampaActivada = this.sound.add("tocaTrampa");
+        this.desactivaSonido = this.sound.add("desactivar");
         let escenaCreativa = this.scene.get('Creative');
         this.add.sprite(escenaCreativa.getBG().x, escenaCreativa.getBG().y,escenaCreativa.getBG().texture.key ).setScale(0.5);
-
         this.tablero = escenaCreativa.getTablero();
         this.bases = escenaCreativa.getBase();
         this.desactivadores =  escenaCreativa.getNumTrampas();
@@ -88,7 +90,7 @@ export default class Challenger extends Phaser.Scene{
         }, this);
 
         //Creación de caminos
-            //Se reserva el espacio para los caminos
+        //Se reserva el espacio para los caminos
         for(let x = 0 ; x < escenaCreativa.getNumBaseX() - 2 ; x++){
             this.arrayCaminos[x] = new Array;
             this.arrayCaminos[x] = [escenaCreativa.getNumBaseY() - 2];
@@ -183,9 +185,7 @@ export default class Challenger extends Phaser.Scene{
         this.scene.add("HUD",HUD,true);
     }
 
-    update(time,delta){
-        //console.log('Time: ' + time + '\nDelta: ' + delta);
-    }
+
 
     //Cuando el jugador activa el salva trampas
     //*Caso de ser un camino, aplica efectos y quita un desactivador
@@ -193,6 +193,7 @@ export default class Challenger extends Phaser.Scene{
     salvaTrampa(){
         if(this.desactivadores > 0  && this.caminoElegido.hasOwnProperty("revisado") 
         && !this.caminoElegido.haSidoDesactivado()){
+            this.desactivaSonido.play();
             this.caminoElegido.desactivador();
             this.events.emit('quitaDesactivador');
             this.desactivadores--;
@@ -261,10 +262,12 @@ export default class Challenger extends Phaser.Scene{
     //*Desactiva la trampa, cambia la textura y manda al jugador a la linea de meta
     colisionContraTrampa(_trampa){  
         if(_trampa.estaActiva()){
+            this.trampaActivada.play();
             _trampa.desactivador();
             _trampa.desarma();
             _trampa.setTexture("trap");
             this.player.mueveAlSpawn(); 
+            this.cuentaAtras.play();
             this.player.cambiaEstado(true,1000);
             this.physics.world.removeCollider(_trampa.getColision());
             this.shakeScene();
@@ -282,7 +285,7 @@ export default class Challenger extends Phaser.Scene{
         let auxCamino;
         let xAux;
         let yAux;
-        if(!this.revisandoLap &&  (x >= 0 && x <= 9) && ( y >= 0 && y <= 8)){ //Comprueba extermos del tablero
+        if(!this.revisandoLap && x >= 0 && x <= 9 &&  y >= 0 && y <= 8){ //Comprueba extermos del tablero
             this.revisandoLap = true;
             switch (dirPlayer) {
                 case 0: //ARRIBA
@@ -338,11 +341,10 @@ export default class Challenger extends Phaser.Scene{
     colisionContraMeta(){
         this.temaFondo.stop();
         console.log("Cambio de escena");
+        this.scene.setVisible(false,"HUD" ); 
         this.scene.switch('Lobby');
         this.scene.remove("Creative");
         this.scene.remove("Challenger");
-        this.scene.remove("HUD");
-        //Cargar la escena final
     }
 }
 

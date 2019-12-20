@@ -55,7 +55,6 @@ export default class HUD extends Phaser.Scene{
 
         if(this.activaPenalizacion){
             this.penalizadoTiempo--;
-            console.log(this.penalizadoTiempo / 100);
             this.penalizadoTxt.setText(this.penalizadoTiempo / 100);
         }
 

@@ -9,7 +9,15 @@ export default class preBoot extends Phaser.Scene{
         this.load.image('loading','./assets/Imagenes/loading.png');
     }
     create(){
-        this.add.image(700,400,"loading");
+        let loading = this.add.image(700,800,"loading");
+        this.tweens.add({
+            targets: loading,
+            scale: 0.15, 
+            y: 0,
+            ease: 'Quintic.Out',
+            duration: 1000,
+            repeat: -1
+        });
         this.scene.launch('boot');
     }
 }
