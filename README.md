@@ -1,6 +1,6 @@
 # Plantilla para juegos en Phaser
 
-Plantilla básica para juegos en Phaser. Hace falta un servidor web para que se ejecute. Por ejemplo:
+https://aibort.github.io/nomisstep/
 
 ```bash
 npx http-server
