@@ -1,4 +1,5 @@
-import Creative from '../scenes/escenaCreativa.js'
+import Creative from '../scenes/escenaCreativa.js';
+import Controls from '../scenes/controles.js';
 import Lobby from './escenaFinal.js';
 
 export default class Menu extends Phaser.Scene{
@@ -37,7 +38,7 @@ export default class Menu extends Phaser.Scene{
           duration: 500,
         });
 
-        let boton_tutorial = this.add.sprite(0,600,'botonTutorial').setInteractive().setScale(0.5);
+        /*let boton_tutorial = this.add.sprite(0,600,'botonTutorial').setInteractive().setScale(0.5);
         boton_tutorial.on('pointerover',() => this.aplicaTween(boton_tutorial));
         boton_tutorial.on('pointerout',() => this.paraTween(boton_tutorial));
         this.tweens.add({
@@ -45,9 +46,9 @@ export default class Menu extends Phaser.Scene{
           x: '+=700',
           ease: 'Quintic.Out',
           duration: 700,
-        });
-
-        let boton_controles = this.add.sprite(1400,700,'botonControles').setInteractive().setScale(0.5);
+        });*/
+        let boton_controles = this.add.sprite(1400,600,'botonControles').setInteractive().setScale(0.5);
+        boton_controles.on('pointerdown', () => this.cargaControles());
         boton_controles.on('pointerover',() => this.aplicaTween(boton_controles));
         boton_controles.on('pointerout',() => this.paraTween(boton_controles));
         this.tweens.add({
@@ -165,6 +166,11 @@ export default class Menu extends Phaser.Scene{
         repeat: -1
       });
 
+    }
+    cargaControles(){
+      this.scene.add('Controls',Controls,true);
+      this.scene.setVisible(false,"MenuGame");
+      this.temaFondo.stop();
     }
 
 
